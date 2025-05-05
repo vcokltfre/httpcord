@@ -1,6 +1,10 @@
 import asyncio
 
-from httpcord import HTTPBot, CommandResponse, Interaction
+from httpcord import (
+    CommandResponse,
+    HTTPBot,
+    Interaction,
+)
 from httpcord.enums import InteractionResponseType
 
 

@@ -23,14 +23,19 @@ SOFTWARE.
 """
 
 import datetime
-from typing import TYPE_CHECKING, Any, Final
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+)
 
 from dateutil.parser import parse
 from fastapi import Request
 
 from httpcord.embed import Embed
-from httpcord.enums import InteractionResponseType, InteractionResponseFlags
+from httpcord.enums import InteractionResponseFlags, InteractionResponseType
 from httpcord.http import Route
+
 
 if TYPE_CHECKING:
     from httpcord.bot import HTTPBot
@@ -79,7 +84,7 @@ class Interaction:
     __slots__: Final[tuple[str, ...]] = (
         "_data",
         "user",
-        "defered",
+        "deferred",
         "responded",
         "bot",
     )
@@ -111,7 +116,7 @@ class Interaction:
             display_name=userinfo["global_name"],
             discriminator=int(userinfo["discriminator"]),
         )
-        self.defered: bool = False
+        self.deferred: bool = False
         self.responded: bool = False
 
     async def defer(self, *, with_message: bool = True, ephemeral: bool = False) -> None:
@@ -119,7 +124,7 @@ class Interaction:
             InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
             if with_message else InteractionResponseType.DEFERRED_UPDATE_MESSAGE
         )
-        self.defered = True
+        self.deferred = True
         await self.bot.http.post(
             Route(
                 f"/interactions/{self._data['id']}/{self._data['token']}/callback",

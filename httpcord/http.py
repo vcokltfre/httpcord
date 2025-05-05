@@ -22,12 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import TYPE_CHECKING, Any, Final, Literal, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+    Literal,
+    Union,
+    overload,
+)
 
 from aiohttp import ClientSession
-
-if TYPE_CHECKING:
-    from httpcord.command import CommandDict
 
 
 class Route:
@@ -44,7 +48,7 @@ class Route:
         url: str,
         *,
         headers: dict[str, Any] | None = None,
-        json: Union[dict[str, Any], "CommandDict", None] = None,
+        json: Union[dict[str, Any], None] = None,
     ) -> None:
         self.url = Route.DISCORD_API_BASE + url
         self.headers = headers or {}
@@ -67,13 +71,14 @@ class HTTP:
             "User-Agent": "HTTPCord / Python - https://git.uwu.gal/pyhttpcord",
         }
 
-    @overload
-    async def post(self, route: Route, expect_return: Literal[True] = True) -> dict[str, Any]:
-        ...
+    if TYPE_CHECKING:
+        @overload
+        async def post(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]:
+            ...
 
-    @overload
-    async def post(self, route: Route, expect_return: Literal[False] = False) -> None:
-        ...
+        @overload
+        async def post(self, route: Route, expect_return: Literal[False] = ...) -> None:
+            ...
 
     async def post(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
         route.headers.update(self._headers)
@@ -82,5 +87,6 @@ class HTTP:
             json=route.json,
             headers=route.headers,
         )
+
         if expect_return:
             return await resp.json()

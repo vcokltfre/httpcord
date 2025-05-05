@@ -3,6 +3,8 @@ A Python Discord Interaction bot API wrapper.
 
 ## `pip install --update httpcord`
 
+A light weight feature-packed HTTP interactions API wrapper for Discord written in Python.
+
 From `examples/*.py`
 ```py
 import asyncio
@@ -94,7 +96,6 @@ async def autocomplete_command(interaction: Interaction, *, string: str) -> Comm
         embeds=[Embed(title=string)],
     )
 
-
 @bot.command("defer-me")
 async def defer_me(interaction: Interaction) -> CommandResponse:
     await interaction.defer()
@@ -131,6 +132,56 @@ async def pick(interaction: Interaction, *, fruit: Fruits) -> CommandResponse:
     return CommandResponse(
         InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"You picked: {fruit.value}!",
+    )
+
+async def group_sub_command(interaction: Interaction) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Hello, world!",
+    )
+
+async def group_sub_sub_command(interaction: Interaction) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Hello... mars?",
+    )
+
+command_group = Command(
+    name="group-name",
+    description="This is the group description",
+    sub_commands=[
+        Command(
+            name="hello",
+            description="Say hello!",
+            func=group_sub_command,
+        ),
+        Command(
+            name="sub-group",
+            sub_commands=[
+                Command(
+                    name="wow",
+                    description="This is awesome!",
+                    func=group_sub_sub_command,
+                ),
+            ],
+        ),
+    ],
+)
+
+bot.register_command(command_group)
+
+@bot.command("Ping the message author", command_type=ApplicationCommandType.MESSAGE)
+async def message_command(interaction: Interaction) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Hey, {interaction.user.mention}!",
+    )
+
+@bot.command("Say hello!", command_type=ApplicationCommandType.USER)
+async def user_command(interaction: Interaction) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Hey, {interaction.user.mention}!",
     )
 
 bot.start(CLIENT_TOKEN)

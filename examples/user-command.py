@@ -3,7 +3,7 @@ from httpcord import (
     HTTPBot,
     Interaction,
 )
-from httpcord.enums import InteractionResponseType
+from httpcord.enums import ApplicationCommandType, InteractionResponseType
 
 
 CLIENT_ID = 0000000000000000000000
@@ -17,11 +17,11 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
-@bot.command("hello-world")
+@bot.command("Say hello!", command_type=ApplicationCommandType.USER)
 async def hello_world(interaction: Interaction) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"hello, {interaction.user.mention}! You joined this server at <t:{int(interaction.user.joined_at.timestamp())}:F>.",
+        content=f"Hey, {interaction.user.mention}!",
     )
 
 bot.start(CLIENT_TOKEN)

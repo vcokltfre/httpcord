@@ -27,11 +27,21 @@ from typing import Final
 
 
 __all__: Final[tuple[str, ...]] = (
+    "ApplicationCommandType",
     "InteractionType",
     "InteractionResponseType",
+    "InteractionContextType",
     "InteractionResponseFlags",
-    "InteractionOptionType",
+    "ApplicationCommandOptionType",
+    "ApplicationIntegrationType",
 )
+
+
+class ApplicationCommandType(IntEnum):
+    CHAT_INPUT = 1
+    USER = 2
+    MESSAGE = 3
+    PRIMARY_ENTRY_POINT = 4
 
 
 class InteractionType(IntEnum):
@@ -40,6 +50,12 @@ class InteractionType(IntEnum):
     MESSAGE_COMPONENT = 3
     APPLICATION_COMMAND_AUTOCOMPLETE = 4
     MODAL_SUBMIT = 5
+
+
+class InteractionContextType(IntEnum):
+    GUILD = 0
+    BOT_DM = 1
+    PRIVATE_CHANNEL = 2
 
 
 class InteractionResponseType(IntEnum):
@@ -56,7 +72,9 @@ class InteractionResponseFlags(IntEnum):
     EPHEMERAL = 1 << 6
 
 
-class InteractionOptionType(IntEnum):
+class ApplicationCommandOptionType(IntEnum):
+    SUB_COMMAND = 1
+    SUB_COMMAND_GROUP = 2
     STRING = 3
     INTEGER = 4     # Any integer between -2^53 and 2^53
     BOOLEAN = 5
@@ -66,3 +84,8 @@ class InteractionOptionType(IntEnum):
     MENTIONABLE = 9 # Includes users and roles
     NUMBER = 10	    # Any double between -2^53 and 2^53
     ATTACHMENT = 11 # attachment object
+
+
+class ApplicationIntegrationType(IntEnum):
+    GUILD_INSTALL = 0
+    USER_INSTALL = 1

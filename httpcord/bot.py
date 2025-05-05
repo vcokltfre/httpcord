@@ -26,21 +26,39 @@ from __future__ import annotations
 
 import enum
 from http import HTTPStatus
-from typing import Any, Callable, Coroutine, Final
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Final,
+    Literal,
+    overload,
+)
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from nacl.signing import VerifyKey
-import uvicorn
 
-from httpcord.command import AutocompleteResponse, Command, CommandData
-from httpcord.enums import InteractionResponseType, InteractionType
+from httpcord.command import (
+    AutocompleteResponse,
+    Command,
+    CommandData,
+)
+from httpcord.command.base import InteractionContextType
+from httpcord.enums import (
+    ApplicationCommandType,
+    ApplicationIntegrationType,
+    InteractionResponseType,
+    InteractionType,
+)
 from httpcord.errors import UnknownCommand
-from httpcord.func_protocol import CommandFunc, AutocompleteFunc
+from httpcord.func_protocol import AutocompleteFunc
 from httpcord.http import HTTP, Route
 from httpcord.interaction import Interaction
 
-from .types import JSONResponseError, JsonResponseType
+from .types import JSONResponseError, JSONResponseType
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -105,7 +123,12 @@ class HTTPBot:
             on_startup=[self._setup],
             on_shutdown=[self._shutdown],
         )
-        self._commands: dict[str, Command] = {}
+        self._commands: dict[ApplicationCommandType, dict[str, Command]] = {
+            ApplicationCommandType.CHAT_INPUT: {},
+            ApplicationCommandType.USER: {},
+            ApplicationCommandType.MESSAGE: {},
+            ApplicationCommandType.PRIMARY_ENTRY_POINT: {},
+        }
         self._uri_path: str = uri_path
         self._fastapi.add_api_route(
             path=self._uri_path,
@@ -114,37 +137,75 @@ class HTTPBot:
             methods=["POST"],
         )
 
+    if TYPE_CHECKING:
+        @overload
+        def command(
+            self,
+            name: str,
+            *,
+            description: str | None = ...,
+            allowed_contexts: list[InteractionContextType] | None = ...,
+            integration_types: list[ApplicationIntegrationType] | None = ...,
+            autocompletes: None = ...,
+            command_type: Literal[
+                ApplicationCommandType.USER,
+                ApplicationCommandType.PRIMARY_ENTRY_POINT,
+                ApplicationCommandType.MESSAGE,
+            ] = ...,
+            auto_defer: bool = ...,
+        ): ...
+
+        @overload
+        def command(
+            self,
+            name: str,
+            *,
+            description: str | None = ...,
+            allowed_contexts: list[InteractionContextType] | None = ...,
+            integration_types: list[ApplicationIntegrationType] | None = ...,
+            autocompletes: dict[str, AutocompleteFunc] | None = ...,
+            command_type: Literal[ApplicationCommandType.CHAT_INPUT] = ...,
+            auto_defer: bool = ...,
+        ): ...
+
     def command(
         self,
         name: str,
         *,
         description: str | None = None,
+        allowed_contexts: list[InteractionContextType] | None = None,
+        integration_types: list[ApplicationIntegrationType] | None = None,
         autocompletes: dict[str, AutocompleteFunc] | None = None,
+        command_type: ApplicationCommandType = ApplicationCommandType.CHAT_INPUT,
         auto_defer: bool = False,
     ):
-        def _decorator(func):
-            self._commands[name] = Command(
+        """ Register a command with the bot. """
+
+        if command_type not in self._commands:
+            raise ValueError(f"Invalid command type {command_type}")
+
+        def _decorator(func: Any):
+            if not command_type == ApplicationCommandType.CHAT_INPUT and autocompletes is not None:
+                raise ValueError("Autocompletes are only supported for `ApplicationCommandType.CHAT_INPUT` commands")
+
+            self._commands[command_type][name] = Command(
                 func=func,
                 name=name,
+                allowed_contexts=set(allowed_contexts) if allowed_contexts else None,
+                integration_types=set(integration_types) if integration_types else None,
                 description=description,
+                command_type=command_type,  # pyright: ignore[reportCallIssue, reportArgumentType]
                 autocompletes=autocompletes,
                 auto_defer=auto_defer,
             )
         return _decorator
 
-    def __process_data(self, data: dict[str, Any]) -> dict[str, Any]:
-        raise NotImplemented()
-
-    def _register_command(
-        self,
-        func: CommandFunc,
-        *,
-        name: str,
-        description: str | None = None,
-    ) -> Command:
-        command = Command(func, name=name, description=description)
-        self._commands[name] = command
-        return command
+    def register_command(self, command: Command) -> None:
+        """ Register a non-decorator command with the bot, or a command group. """
+        if isinstance(command, Command):
+            self._commands[command.command_type][command._name] = command
+        else:
+            raise TypeError("Command must be a Command or CommandGroup")
 
     async def _verify_signature(self, request: Request) -> bool:
         signature: str | None = request.headers.get('X-Signature-Ed25519')
@@ -168,7 +229,7 @@ class HTTPBot:
         if request_json['type'] == InteractionType.PING:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
-                content=JsonResponseType(
+                content=JSONResponseType(
                     type=InteractionResponseType.PONG,
                 ),
             )
@@ -176,37 +237,43 @@ class HTTPBot:
             return await self.__process_autocompletes(request, request_json)
         return await self.__process_commands(request, request_json)
 
-    async def ___create_interaction(self, request: Request, data: dict[str, Any]) -> Interaction:
+    async def ___create_interaction(self, request: Request, command: Command, data: dict[str, Any]) -> Interaction:
         return Interaction(request, data, self)
 
     async def ___get_command_data(self, request: Request, data: dict[str, Any]) -> CommandData | None:
-        command_name = data.get("data", {}).get("name", None)
-        command = self._commands.get(command_name, None)
-        if command:
-            interaction = await self.___create_interaction(request, data)
-            return CommandData(
-                command=command,
-                options=data["data"].get("options", []),
-                interaction=interaction
-            )
-        return None
+        command_name: str | None = data.get("data", {}).get("name", None)
+        command_type: ApplicationCommandType | None = data.get("data", {}).get("type", None)
+        if command_type is None or command_name is None:
+            return None
+        if command_type not in self._commands:
+            raise UnknownCommand(f"Unknown command type {command_type}")
+        command = self._commands[command_type].get(command_name, None)
+        if not command:
+            return None
+
+        interaction = await self.___create_interaction(request, command, data)
+        return CommandData(
+            command=command,
+            options=data["data"].get("options", []),
+            interaction=interaction
+        )
 
     async def __process_commands(self, request: Request, data: dict[str, Any]) -> JSONResponse:
         command_data = await self.___get_command_data(request, data)
-        if command_data:
-            command = command_data.command
-            interaction = command_data.interaction
-            options = command_data.options_formatted
-            for option_name in options.keys():
-                kwarg_type = command._func.__annotations__[option_name]
-                option_value = options[option_name]
-                if kwarg_type.__class__ == enum.EnumType:
-                    options[option_name] = getattr(kwarg_type, option_value)
-            if command._auto_defer:
-                await interaction.defer()
-            response = await command.invoke(interaction, **options)
-            return JSONResponse(content=response.to_dict())
-        raise UnknownCommand(f"Unknown command used")
+        if not command_data:
+            raise UnknownCommand(f"Unknown command used")
+        command = command_data.command
+        interaction = command_data.interaction
+        options = command_data.options_formatted
+        for option_name in options.keys():
+            kwarg_type = command._func.__annotations__[option_name]
+            option_value = options[option_name]
+            if kwarg_type.__class__ == enum.EnumType:
+                options[option_name] = getattr(kwarg_type, option_value)
+        if command._auto_defer:
+            await interaction.defer()
+        response = await command.invoke(interaction, **options)
+        return JSONResponse(content=response.to_dict())
 
     async def __process_autocompletes(self, request: Request, data: dict[str, Any]) -> JSONResponse:
         command_data = await self.___get_command_data(request, data)
@@ -229,11 +296,12 @@ class HTTPBot:
         return await self._handle_verified_interaction(request)
 
     async def register_commands(self) -> None:
-        for _, command in self._commands.items():
-            await self.http.post(Route(
-                f"/applications/{self._id}/commands",
-                json=command.to_dict(),
-            ))
+        for _, commands in self._commands.items():
+            for _, command in commands.items():
+                await self.http.post(Route(
+                    f"/applications/{self._id}/commands",
+                    json=command.to_dict(),
+                ))
 
     async def _setup(self) -> None:
         self.http = HTTP(token=self._token)

@@ -24,22 +24,26 @@ SOFTWARE.
 
 from typing import Final, TypedDict
 
-from httpcord.enums import InteractionResponseType, InteractionOptionType
+from httpcord.enums import (
+    ApplicationCommandOptionType,
+    InteractionResponseType,
+)
 from httpcord.interaction import User
 
 
 __all__: Final[tuple[str, ...]] = (
     "JSONResponseError",
-    "Choice",
+    "JSONResponseType",
+    "TYPE_CONVERSION_TABLE",
 )
 
 
-TYPE_CONVERSION_TABLE: dict[type, InteractionOptionType] = {
-    bool: InteractionOptionType.BOOLEAN,
-    int: InteractionOptionType.INTEGER,
-    float: InteractionOptionType.NUMBER,
-    str: InteractionOptionType.STRING,
-    User: InteractionOptionType.USER,
+TYPE_CONVERSION_TABLE: dict[type, ApplicationCommandOptionType] = {
+    bool: ApplicationCommandOptionType.BOOLEAN,
+    int: ApplicationCommandOptionType.INTEGER,
+    float: ApplicationCommandOptionType.NUMBER,
+    str: ApplicationCommandOptionType.STRING,
+    User: ApplicationCommandOptionType.USER,
     # file: InteractionOptionType.ATTACHMENT,
     # channel: InteractionOptionType.CHANNEL,
     # mentionable: InteractionOptionType.MENTIONABLE,
@@ -51,10 +55,5 @@ class JSONResponseError(TypedDict):
     error: str
 
 
-class JsonResponseType(TypedDict):
+class JSONResponseType(TypedDict):
     type: InteractionResponseType
-
-
-class Choice(TypedDict):
-    name: str
-    value: str

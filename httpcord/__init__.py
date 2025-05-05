@@ -25,7 +25,7 @@ SOFTWARE.
 from typing import Final
 
 from .bot import HTTPBot
-from .command import CommandResponse, Interaction
+from .command.base import CommandResponse, Interaction
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -34,5 +34,5 @@ __all__: Final[tuple[str, ...]] = (
     "Interaction",
 )
 
-__version__: Final[str] = "0.1.9"
+__version__: Final[str] = "0.2.0"
 __author__: Final[str] = "Isabelle Phoebe <izzy@uwu.gal>"

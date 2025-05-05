@@ -1,8 +1,13 @@
 from typing import Final
-from httpcord import HTTPBot, CommandResponse, Interaction
+
+from httpcord import (
+    CommandResponse,
+    HTTPBot,
+    Interaction,
+)
+from httpcord.command.types import Choice
 from httpcord.embed import Embed
 from httpcord.enums import InteractionResponseType
-from httpcord.types import Choice
 
 
 CLIENT_ID = 0000000000000000000000

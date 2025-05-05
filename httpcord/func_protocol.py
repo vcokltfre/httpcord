@@ -33,8 +33,8 @@ from typing import (
     TypeVar,
 )
 
+from httpcord.command.types import Choice
 from httpcord.interaction import CommandResponse, Interaction
-from httpcord.types import Choice
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -51,7 +51,7 @@ class CommandCallabackProtocol(Protocol[P, R]):
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, first: Interaction, *args: P.args, **kwargs: P.kwargs) -> R:
+    async def __call__(self, interaction: Interaction, *args: P.args, **kwargs: P.kwargs) -> R:
         ...
 
 
@@ -59,7 +59,7 @@ class AutocompleteCallabackProtocol(Protocol[P, R]):
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, first: Interaction, current: str) -> R:
+    async def __call__(self, interaction: Interaction, current: str) -> R:
         ...
 
 
