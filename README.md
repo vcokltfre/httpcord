@@ -14,7 +14,7 @@ import random
 from httpcord import HTTPBot, CommandResponse, Interaction
 from httpcord.embed import Embed
 from httpcord.enums import InteractionResponseType
-from httpcord.types import AutocompleteChoice
+from httpcord.types import AutocompleteChoice, Integer, Float, String
 
 
 CLIENT_ID = 0000000000000000000000
@@ -182,6 +182,29 @@ async def user_command(interaction: Interaction) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Hey, {interaction.user.mention}!",
+    )
+
+@bot.command("int-and-float-bounding")
+async def int_and_float_bounding(
+    interaction: Interaction,
+    *,
+    integer: Annotated[int, Integer(min_value=3, max_value=10)],
+    number: Annotated[float, Float(min_value=0.5, max_value=2.5)],
+) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Wow! {integer} and {number}",
+    )
+
+@bot.command("string-length-test")
+async def string_length_test(
+    interaction: Interaction,
+    *,
+    echo: Annotated[str, String(min_length=3, max_length=10)],
+) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Wow! {echo}",
     )
 
 bot.start(CLIENT_TOKEN)

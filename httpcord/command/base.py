@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import enum
 import types
+import typing
 from typing import (
     Any,
     Final,
@@ -45,7 +46,12 @@ from httpcord.enums import (
 )
 from httpcord.func_protocol import AutocompleteFunc, CommandFunc
 from httpcord.interaction import CommandResponse, Interaction
-from httpcord.types import TYPE_CONVERSION_TABLE
+from httpcord.types import (
+    TYPE_CONVERSION_TABLE,
+    Float,
+    Integer,
+    String,
+)
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -187,42 +193,60 @@ class Command:
         return self._integration_types
 
     @property
-    def options(self) -> list[CommandOption] | None:
+    def options(self) -> dict[str, CommandOption] | None:
         if self._func is None and len(self._sub_commands) == 0:
             return None
-        options: list[CommandOption] = []
+        options: dict[str, CommandOption] = {}
         if self._func is not None:
             raw_options = list(self._func.__annotations__.items())[1:-1]
-            default_options = tuple(k for k, _ in (getattr(self._func, "__kwdefaults__") or {}).items())
-            for raw_option in raw_options:
-                required = not raw_option[0] in default_options
-                option_type = raw_option[1]
+            default_options: dict[str, Any] = getattr(self._func, "__kwdefaults__") or {}
+            for option_name, option_value in raw_options:
+                required = not option_name in default_options
                 choices: list[Choice] | None = None
-                if type(raw_option[1]) == types.UnionType:
-                    option_type = raw_option[1].__args__[0]
-                if option_type.__class__ == enum.EnumType:
+                if type(option_value) == types.UnionType:
+                    option_value = option_value.__args__[0]
+                if option_value.__class__ == enum.EnumType:
                     choices = [
                         Choice(name=v.value, value=k)
-                        for k, v in option_type.__members__.items()
+                        for k, v in option_value.__members__.items()
                     ]
-                    option_type = option_type.__base__.__bases__[0]
-                if option_type not in TYPE_CONVERSION_TABLE.keys():
-                    option_type = str
-                options.append(CommandOption(  # pyright: ignore[reportCallIssue]
-                    name=raw_option[0],
+                    option_value = option_value.__base__.__bases__[0]
+                option_settings: dict[str, Any] = {}
+                annotation_settings = getattr(option_value, "__dict__", {})
+                if annotation_settings.get('_name') == "Annotated":
+                    if annotation_settings.get('__metadata__', None) is not None:
+                        annotated_type = annotation_settings['__metadata__'][0]
+                        option_value = annotation_settings['__origin__']
+                        if type(annotated_type) in (Integer, Float):
+                            option_settings = {
+                                "min_value": annotated_type.min_value,
+                                "max_value": annotated_type.max_value,
+                            }
+                        elif type(annotated_type) in (String,):
+                            option_settings = {
+                                "min_length": annotated_type.min_length,
+                                "max_length": annotated_type.max_length,
+                            }
+
+                if option_value not in TYPE_CONVERSION_TABLE.keys():
+                    option_value = str
+
+                options[option_name] = CommandOption(  # pyright: ignore[reportCallIssue]
+                    name=option_name,
                     description=self._description,
-                    type=TYPE_CONVERSION_TABLE[option_type],  # type: ignore[reportArgumentType]
+                    type=TYPE_CONVERSION_TABLE[option_value],  # type: ignore[reportArgumentType]
                     required=required,
-                    autocomplete=raw_option[0] in self._autocompletes.keys(),  # type: ignore[reportArgumentType]
+                    autocomplete=option_name in self._autocompletes.keys(),  # type: ignore[reportArgumentType]
                     options=None,
                     choices=choices,
-                ))
+                    **option_settings,
+                )
             return options
         for name, command in self._sub_commands.items():
             if command.is_sub_command_group:
                 if not command.options:
                     raise ValueError(f"Subcommand group `{self.name} {command.name}` must have sub commands provided.")
-                options.append(CommandOption(
+                options[name] = CommandOption(
                     name=name,
                     description=command.description,
                     type=ApplicationCommandOptionType.SUB_COMMAND_GROUP,
@@ -230,9 +254,9 @@ class Command:
                     autocomplete=None,
                     options=command.options,
                     choices=None,
-                ))
+                )
                 continue
-            options.append(CommandOption(
+            options[name] = CommandOption(
                 name=name,
                 description=command.description,
                 type=ApplicationCommandOptionType.SUB_COMMAND,
@@ -240,12 +264,13 @@ class Command:
                 autocomplete=False,
                 options=command.options,
                 choices=None,
-            ))
+            )
         return options
 
     async def invoke(self, interaction: Interaction, **kwargs: Any) -> CommandResponse:
         if self._func is None:
             raise ValueError("This command cannot be directly invoked.")
+
         return await self._func(interaction, **kwargs)
 
     def to_dict(self) -> dict:
@@ -255,7 +280,7 @@ class Command:
             "description": self.description,
             "integration_types": [integration_type.value for integration_type in self.integration_types],
             "contexts": [context.value for context in self.allowed_contexts],
-            "options": [option.to_dict() for option in self.options] if self.options else None,
+            "options": [option.to_dict() for option in self.options.values()] if self.options else None,
         }
 
 

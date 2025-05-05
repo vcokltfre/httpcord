@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from dataclasses import dataclass
 from typing import Final, TypedDict
 
 from httpcord.enums import (
@@ -35,7 +36,28 @@ __all__: Final[tuple[str, ...]] = (
     "JSONResponseError",
     "JSONResponseType",
     "TYPE_CONVERSION_TABLE",
+    "Integer",
+    "Float",
+    "String",
 )
+
+
+@dataclass(slots=True)
+class Integer:
+    min_value: int | None = None
+    max_value: int | None = None
+
+
+@dataclass(slots=True)
+class Float:
+    min_value: float | None = None
+    max_value: float | None = None
+
+
+@dataclass(slots=True)
+class String:
+    min_length: int | None = None
+    max_length: int | None = None
 
 
 TYPE_CONVERSION_TABLE: dict[type, ApplicationCommandOptionType] = {

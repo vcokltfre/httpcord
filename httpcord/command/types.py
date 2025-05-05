@@ -24,6 +24,10 @@ class CommandOption:
         "_autocomplete",
         "_options",
         "_choices",
+        "_min_value",
+        "_max_value",
+        "_min_length",
+        "_max_length",
     )
 
     if TYPE_CHECKING:
@@ -35,8 +39,12 @@ class CommandOption:
             type: Literal[ApplicationCommandOptionType.SUB_COMMAND],
             required: None = ...,
             autocomplete: Literal[False] | None = ...,
-            options: list[CommandOption] | None = ...,
+            options: dict[str, CommandOption] | None = ...,
             choices: None = ...,
+            min_value: None = ...,
+            max_value: None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
         ) -> None: ...
 
         @overload
@@ -47,8 +55,12 @@ class CommandOption:
             type: Literal[ApplicationCommandOptionType.SUB_COMMAND_GROUP],
             required: None = ...,
             autocomplete: None = ...,
-            options: list[CommandOption] = ...,
+            options: dict[str, CommandOption] = ...,
             choices: None = ...,
+            min_value: None = ...,
+            max_value: None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
         ) -> None: ...
 
         @overload
@@ -56,15 +68,15 @@ class CommandOption:
             self,
             name: str,
             description: str | None,
-            type: Literal[
-                ApplicationCommandOptionType.STRING,
-                ApplicationCommandOptionType.INTEGER,
-                ApplicationCommandOptionType.NUMBER,
-            ],
+            type: Literal[ApplicationCommandOptionType.STRING],
             required: bool | None = ...,
             autocomplete: Literal[False] | None = ...,
             options: None = ...,
             choices: list[Choice] | None = ...,
+            min_value: None = ...,
+            max_value: None = ...,
+            min_length: int | None = ...,
+            max_length: int | None = ...,
         ) -> None: ...
 
         @overload
@@ -72,15 +84,79 @@ class CommandOption:
             self,
             name: str,
             description: str | None,
-            type: Literal[
-                ApplicationCommandOptionType.STRING,
-                ApplicationCommandOptionType.INTEGER,
-                ApplicationCommandOptionType.NUMBER,
-            ],
+            type: Literal[ApplicationCommandOptionType.STRING],
             required: bool | None = ...,
             autocomplete: Literal[True] = ...,
             options: None = ...,
             choices: None = ...,
+            min_value: None = ...,
+            max_value: None = ...,
+            min_length: int | None = ...,
+            max_length: int | None = ...,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            name: str,
+            description: str | None,
+            type: Literal[ApplicationCommandOptionType.INTEGER],
+            required: bool | None = ...,
+            autocomplete: Literal[False] | None = ...,
+            options: None = ...,
+            choices: list[Choice] | None = ...,
+            min_value: int | None = ...,
+            max_value: int | None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            name: str,
+            description: str | None,
+            type: Literal[ApplicationCommandOptionType.INTEGER],
+            required: bool | None = ...,
+            autocomplete: Literal[True] = ...,
+            options: None = ...,
+            choices: None = ...,
+            min_value: int | None = ...,
+            max_value: int | None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            name: str,
+            description: str | None,
+            type: Literal[ApplicationCommandOptionType.NUMBER],
+            required: bool | None = ...,
+            autocomplete: Literal[False] | None = ...,
+            options: None = ...,
+            choices: list[Choice] | None = ...,
+            min_value: float | None = ...,
+            max_value: float | None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
+        ) -> None: ...
+
+        @overload
+        def __init__(
+            self,
+            name: str,
+            description: str | None,
+            type: Literal[ApplicationCommandOptionType.NUMBER],
+            required: bool | None = ...,
+            autocomplete: Literal[True] = ...,
+            options: None = ...,
+            choices: None = ...,
+            min_value: float | None = ...,
+            max_value: float | None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
         ) -> None: ...
 
         @overload
@@ -100,8 +176,11 @@ class CommandOption:
             autocomplete: None = ...,
             options: None = ...,
             choices: None = ...,
+            min_value: None = ...,
+            max_value: None = ...,
+            min_length: None = ...,
+            max_length: None = ...,
         ) -> None: ...
-
 
     def __init__(
         self,
@@ -110,16 +189,24 @@ class CommandOption:
         type: ApplicationCommandOptionType,
         required: bool | None = False,
         autocomplete: bool | None = False,
-        options: list[CommandOption] | None = None,
+        options: dict[str, CommandOption] | None = None,
         choices: list[Choice] | None = None,
+        min_value: int | float | None = None,
+        max_value: int | float | None = None,
+        min_length: int | None = None,
+        max_length: int | None = None,
     ) -> None:
         self._name: str = name
         self._description: str | None = description
         self._type: ApplicationCommandOptionType = type
         self._required: bool = required or False
         self._autocomplete: bool | None = autocomplete
-        self._options: list[CommandOption] | None = options
+        self._options: dict[str, CommandOption] | None = options
         self._choices: list[Choice] | None = choices
+        self._min_value: int | float | None = min_value
+        self._max_value: int | float | None = max_value
+        self._min_length: int | None = min_length
+        self._max_length: int | None = max_length
 
     def to_dict(self) -> dict:
         return {
@@ -131,8 +218,12 @@ class CommandOption:
                 ApplicationCommandOptionType.SUB_COMMAND_GROUP,
             ] else None,
             "autocomplete": self._autocomplete,
-            "options": [option.to_dict() for option in self._options] if self._options else None,
+            "options": [option.to_dict() for option in self._options.values()] if self._options else None,
             "choices": [choice.to_dict() for choice in self._choices] if self._choices else None,
+            "min_value": self._min_value,
+            "max_value": self._max_value,
+            "min_length": self._min_length,
+            "max_length": self._max_length,
         }
 
     def __iter__(self):
