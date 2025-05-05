@@ -47,6 +47,7 @@ from httpcord.command import (
     CommandData,
 )
 from httpcord.command.base import InteractionContextType
+from httpcord.command.types import ApplicationCommandOptionType
 from httpcord.enums import (
     ApplicationCommandType,
     ApplicationIntegrationType,
@@ -58,7 +59,7 @@ from httpcord.func_protocol import AutocompleteFunc
 from httpcord.http import HTTP, Route
 from httpcord.interaction import Interaction
 
-from .types import JSONResponseError, JSONResponseType
+from httpcord.types import JSONResponseError, JSONResponseType, File
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -260,6 +261,7 @@ class HTTPBot:
 
     async def __process_commands(self, request: Request, data: dict[str, Any]) -> JSONResponse:
         command_data = await self.___get_command_data(request, data)
+        # print(data)
         if not command_data:
             raise UnknownCommand(f"Unknown command used")
         command = command_data.command
@@ -269,9 +271,17 @@ class HTTPBot:
             kwarg_type = command._func.__annotations__[option_name]
             option_value = options[option_name]
             if kwarg_type.__class__ == enum.EnumType:
+                # sorry
                 options[option_name] = getattr(kwarg_type, option_value)
         if command._auto_defer:
             await interaction.defer()
+
+        command_options = command.options or {}
+        for option_name, option_value in options.items():
+            if command_options[option_name]._type == ApplicationCommandOptionType.ATTACHMENT:
+                attachment_id = option_value
+                options[option_name] = File.from_option(data['data']['resolved']['attachments'][attachment_id])
+
         response = await command.invoke(interaction, **options)
         return JSONResponse(content=response.to_dict())
 

@@ -14,7 +14,7 @@ import random
 from httpcord import HTTPBot, CommandResponse, Interaction
 from httpcord.embed import Embed
 from httpcord.enums import InteractionResponseType
-from httpcord.types import AutocompleteChoice, Integer, Float, String
+from httpcord.types import AutocompleteChoice, Integer, Float, String, File
 
 
 CLIENT_ID = 0000000000000000000000
@@ -205,6 +205,13 @@ async def string_length_test(
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Wow! {echo}",
+    )
+
+@bot.command("upload-file")
+async def upload_file(interaction: Interaction, *, file: File) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"You uploaded a file with name: {file.filename}!",
     )
 
 bot.start(CLIENT_TOKEN)
