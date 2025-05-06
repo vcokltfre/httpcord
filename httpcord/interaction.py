@@ -125,15 +125,21 @@ class Interaction:
             if with_message else InteractionResponseType.DEFERRED_UPDATE_MESSAGE
         )
         self.deferred = True
+
+        payload = {
+            "type": deferral_type,
+        }
+        if ephemeral:
+            payload.update({
+                "data": {
+                    "flags": InteractionResponseFlags.EPHEMERAL,
+                },
+            })
+
         await self.bot.http.post(
             Route(
                 f"/interactions/{self._data['id']}/{self._data['token']}/callback",
-                json={
-                    "type": deferral_type,
-                    "data": {
-                        "flags": InteractionResponseFlags.EPHEMERAL if ephemeral else None,
-                    },
-                },
+                json=payload,
             ),
             expect_return=False,
         )
