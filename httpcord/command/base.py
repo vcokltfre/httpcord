@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import enum
 import types
-import typing
 from typing import (
     Any,
     Final,
@@ -46,6 +45,7 @@ from httpcord.enums import (
 )
 from httpcord.func_protocol import AutocompleteFunc, CommandFunc
 from httpcord.interaction import CommandResponse, Interaction
+from httpcord.locale import DEFAULT_LOCALE, Locale, LocaleDict
 from httpcord.types import (
     TYPE_CONVERSION_TABLE,
     Float,
@@ -73,6 +73,8 @@ class Command:
         "_is_sub_command_group",
         "_allowed_contexts",
         "_integration_types",
+        "_locale",
+        "_option_localisations",
     )
 
     if TYPE_CHECKING:
@@ -93,6 +95,9 @@ class Command:
             autocompletes: None = ...,
             auto_defer: bool = ...,
             sub_commands: None = ...,
+            name_localisations: LocaleDict | None = ...,
+            description_localisations: LocaleDict | None = ...,
+            option_localisations: dict[str, Locale] | None = ...,
         ) -> None: ...
 
         @overload
@@ -108,6 +113,9 @@ class Command:
             autocompletes: dict[str, AutocompleteFunc] | None = ...,
             auto_defer: bool = ...,
             sub_commands: None = ...,
+            name_localisations: LocaleDict | None = ...,
+            description_localisations: LocaleDict | None = ...,
+            option_localisations: dict[str, Locale] | None = ...,
         ) -> None: ...
 
         @overload
@@ -123,6 +131,9 @@ class Command:
             autocompletes: None = ...,
             auto_defer: None = ...,
             sub_commands: list[Command] = ...,
+            name_localisations: LocaleDict | None = ...,
+            description_localisations: LocaleDict | None = ...,
+            option_localisations: dict[str, Locale] | None = ...,
         ) -> None: ...
 
     def __init__(
@@ -137,13 +148,16 @@ class Command:
         autocompletes: dict[str, AutocompleteFunc] | None = None,
         auto_defer: bool | None = False,
         sub_commands: list[Command] | None = None,
+        name_localisations: LocaleDict | None = None,
+        description_localisations: LocaleDict | None = None,
+        option_localisations: dict[str, Locale] | None = None,
     ) -> None:
         if (func is None and sub_commands is None) or (func is None and len(sub_commands or []) == 0):
             raise ValueError(f"Group command must at least one sub command provided (`{name}`).")
 
         self._func: CommandFunc | None = func
         self._name: str = name
-        self._description: str = description or ""
+        self._description: str | None = description
         self._integration_types: set[ApplicationIntegrationType] = integration_types or {
             ApplicationIntegrationType.GUILD_INSTALL,
         }
@@ -152,6 +166,11 @@ class Command:
             InteractionContextType.GUILD,
             InteractionContextType.PRIVATE_CHANNEL,
         }
+        self._locale: Locale = Locale(
+            name_localisations=name_localisations,
+            description_localisations=description_localisations,
+        )
+        self._option_localisations: dict[str, Locale] = option_localisations or {}
         self._command_type: ApplicationCommandType = command_type or ApplicationCommandType.CHAT_INPUT
         self._autocompletes: dict[str, AutocompleteFunc] = autocompletes or {}
         self._auto_defer: bool = auto_defer or False
@@ -169,8 +188,12 @@ class Command:
         return self._command_type
 
     @property
-    def description(self) -> str:
-        return self._description
+    def description(self) -> str | None:
+        return (
+            (self._description or "--")
+            if self.command_type == ApplicationCommandType.CHAT_INPUT
+            else None
+        )
 
     @property
     def autocompletes(self) -> dict[str, AutocompleteFunc]:
@@ -231,14 +254,19 @@ class Command:
                 if option_value not in TYPE_CONVERSION_TABLE.keys():
                     option_value = str
 
+                option_description = None
+                option_localiser = self._option_localisations.get(option_name, None)
+                if option_localiser is not None:
+                    option_description = option_localiser.get_default("description_localisations")
                 options[option_name] = CommandOption(  # pyright: ignore[reportCallIssue]
                     name=option_name,
-                    description=self._description,
+                    description=option_description,
                     type=TYPE_CONVERSION_TABLE[option_value],  # type: ignore[reportArgumentType]
                     required=required,
                     autocomplete=option_name in self._autocompletes.keys(),  # type: ignore[reportArgumentType]
                     options=None,
                     choices=choices,
+                    locale=self._option_localisations.get(option_name, None),
                     **option_settings,
                 )
             return options
@@ -281,6 +309,8 @@ class Command:
             "integration_types": [integration_type.value for integration_type in self.integration_types],
             "contexts": [context.value for context in self.allowed_contexts],
             "options": [option.to_dict() for option in self.options.values()] if self.options else None,
+            "name_localizations": self._locale.name_localisations,
+            "description_localizations": self._locale.description_localisations,
         }
 
 

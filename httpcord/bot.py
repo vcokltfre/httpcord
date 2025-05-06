@@ -59,6 +59,7 @@ from httpcord.func_protocol import AutocompleteFunc
 from httpcord.http import HTTP, Route
 from httpcord.interaction import Interaction
 
+from httpcord.locale import Locale, LocaleDict
 from httpcord.types import JSONResponseError, JSONResponseType, File
 
 
@@ -154,6 +155,9 @@ class HTTPBot:
                 ApplicationCommandType.MESSAGE,
             ] = ...,
             auto_defer: bool = ...,
+            name_localisations: LocaleDict | None = ...,
+            description_localisations: LocaleDict | None = ...,
+            option_localisations: dict[str, Locale] | None = ...,
         ): ...
 
         @overload
@@ -167,6 +171,9 @@ class HTTPBot:
             autocompletes: dict[str, AutocompleteFunc] | None = ...,
             command_type: Literal[ApplicationCommandType.CHAT_INPUT] = ...,
             auto_defer: bool = ...,
+            name_localisations: LocaleDict | None = ...,
+            description_localisations: LocaleDict | None = ...,
+            option_localisations: dict[str, Locale] | None = ...,
         ): ...
 
     def command(
@@ -179,6 +186,9 @@ class HTTPBot:
         autocompletes: dict[str, AutocompleteFunc] | None = None,
         command_type: ApplicationCommandType = ApplicationCommandType.CHAT_INPUT,
         auto_defer: bool = False,
+        name_localisations: LocaleDict | None = None,
+        description_localisations: LocaleDict | None = None,
+        option_localisations: dict[str, Locale] | None = None,
     ):
         """ Register a command with the bot. """
 
@@ -198,6 +208,9 @@ class HTTPBot:
                 command_type=command_type,  # pyright: ignore[reportCallIssue, reportArgumentType]
                 autocompletes=autocompletes,
                 auto_defer=auto_defer,
+                name_localisations=name_localisations,
+                description_localisations=description_localisations,
+                option_localisations=option_localisations,
             )
         return _decorator
 
@@ -261,7 +274,6 @@ class HTTPBot:
 
     async def __process_commands(self, request: Request, data: dict[str, Any]) -> JSONResponse:
         command_data = await self.___get_command_data(request, data)
-        # print(data)
         if not command_data:
             raise UnknownCommand(f"Unknown command used")
         command = command_data.command
@@ -311,10 +323,13 @@ class HTTPBot:
             for commands in self._commands.values()
             for command in commands.values()
         ]
-        await self.http.put(Route(
+        a = await self.http.put(Route(
             f"/applications/{self._id}/commands",
             json=api_commands,
-        ))
+        ), expect_return=True)
+        print(api_commands)
+        print("-------")
+        print(a)
 
     async def _setup(self) -> None:
         self.http = HTTP(token=self._token)

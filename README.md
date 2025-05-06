@@ -15,6 +15,7 @@ from httpcord import HTTPBot, CommandResponse, Interaction
 from httpcord.embed import Embed
 from httpcord.enums import InteractionResponseType
 from httpcord.types import AutocompleteChoice, Integer, Float, String, File
+from httpcord.locale import Locale
 
 
 CLIENT_ID = 0000000000000000000000
@@ -212,6 +213,23 @@ async def upload_file(interaction: Interaction, *, file: File) -> CommandRespons
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"You uploaded a file with name: {file.filename}!",
+    )
+
+@bot.command(
+    name="hello-world",
+    name_localisations={
+        "en-US": "hello-world",
+        "fr": "bonjour-le-monde",
+        "es-ES": "hola-mundo",
+    },
+    option_localisations={
+        "parameter": Locale(description="This is a described parameter.")
+    },
+)
+async def hello_world(interaction: Interaction, *, parameter: str) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Hello, world!",
     )
 
 bot.start(CLIENT_TOKEN)

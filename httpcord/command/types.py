@@ -31,6 +31,7 @@ from typing import (
 )
 
 from httpcord.enums import ApplicationCommandOptionType
+from httpcord.locale import DEFAULT_LOCALE, Locale
 
 
 __all__: tuple[str, ...] = (
@@ -52,6 +53,7 @@ class CommandOption:
         "_max_value",
         "_min_length",
         "_max_length",
+        "_locale",
     )
 
     if TYPE_CHECKING:
@@ -69,6 +71,7 @@ class CommandOption:
             max_value: None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -85,6 +88,7 @@ class CommandOption:
             max_value: None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -101,6 +105,7 @@ class CommandOption:
             max_value: None = ...,
             min_length: int | None = ...,
             max_length: int | None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -117,6 +122,7 @@ class CommandOption:
             max_value: None = ...,
             min_length: int | None = ...,
             max_length: int | None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -133,6 +139,7 @@ class CommandOption:
             max_value: int | None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -149,6 +156,7 @@ class CommandOption:
             max_value: int | None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -165,6 +173,7 @@ class CommandOption:
             max_value: float | None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -181,6 +190,7 @@ class CommandOption:
             max_value: float | None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
         @overload
@@ -204,6 +214,7 @@ class CommandOption:
             max_value: None = ...,
             min_length: None = ...,
             max_length: None = ...,
+            locale: Locale | None = ...,
         ) -> None: ...
 
     def __init__(
@@ -219,9 +230,10 @@ class CommandOption:
         max_value: int | float | None = None,
         min_length: int | None = None,
         max_length: int | None = None,
+        locale: Locale | None = None,
     ) -> None:
         self._name: str = name
-        self._description: str | None = description
+        self._description: str = description or ""
         self._type: ApplicationCommandOptionType = type
         self._required: bool = required or False
         self._autocomplete: bool | None = autocomplete
@@ -231,6 +243,10 @@ class CommandOption:
         self._max_value: int | float | None = max_value
         self._min_length: int | None = min_length
         self._max_length: int | None = max_length
+        self._locale = locale or Locale(
+            name_localisations={DEFAULT_LOCALE: name},
+            description_localisations={DEFAULT_LOCALE: self._description},
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -248,6 +264,8 @@ class CommandOption:
             "max_value": self._max_value,
             "min_length": self._min_length,
             "max_length": self._max_length,
+            "name_localizations": self._locale.name_localisations,
+            "description_localizations": self._locale.description_localisations,
         }
 
     def __iter__(self):
