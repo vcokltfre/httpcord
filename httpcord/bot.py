@@ -323,13 +323,10 @@ class HTTPBot:
             for commands in self._commands.values()
             for command in commands.values()
         ]
-        a = await self.http.put(Route(
+        await self.http.put(Route(
             f"/applications/{self._id}/commands",
             json=api_commands,
-        ), expect_return=True)
-        print(api_commands)
-        print("-------")
-        print(a)
+        ))
 
     async def _setup(self) -> None:
         self.http = HTTP(token=self._token)
