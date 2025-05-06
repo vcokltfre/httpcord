@@ -48,7 +48,7 @@ class Route:
         url: str,
         *,
         headers: dict[str, Any] | None = None,
-        json: Union[dict[str, Any], None] = None,
+        json: Any = None,
     ) -> None:
         self.url = Route.DISCORD_API_BASE + url
         self.headers = headers or {}
@@ -80,9 +80,30 @@ class HTTP:
         async def post(self, route: Route, expect_return: Literal[False] = ...) -> None:
             ...
 
+        @overload
+        async def put(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]:
+            ...
+
+        @overload
+        async def put(self, route: Route, expect_return: Literal[False] = ...) -> None:
+            ...
+
+
     async def post(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
         route.headers.update(self._headers)
         resp = await self._session.post(
+            url=route.url,
+            json=route.json,
+            headers=route.headers,
+        )
+
+        if expect_return:
+            return await resp.json()
+
+
+    async def put(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
+        route.headers.update(self._headers)
+        resp = await self._session.put(
             url=route.url,
             json=route.json,
             headers=route.headers,

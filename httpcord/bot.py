@@ -306,12 +306,15 @@ class HTTPBot:
         return await self._handle_verified_interaction(request)
 
     async def register_commands(self) -> None:
-        for _, commands in self._commands.items():
-            for _, command in commands.items():
-                await self.http.post(Route(
-                    f"/applications/{self._id}/commands",
-                    json=command.to_dict(),
-                ))
+        api_commands: list[dict[str, Any]] = [
+            command.to_dict()
+            for commands in self._commands.values()
+            for command in commands.values()
+        ]
+        await self.http.put(Route(
+            f"/applications/{self._id}/commands",
+            json=api_commands,
+        ))
 
     async def _setup(self) -> None:
         self.http = HTTP(token=self._token)
