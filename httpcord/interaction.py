@@ -126,7 +126,7 @@ class Interaction:
         )
         self.deferred = True
 
-        payload = {
+        payload: dict = {
             "type": deferral_type,
         }
         if ephemeral:
