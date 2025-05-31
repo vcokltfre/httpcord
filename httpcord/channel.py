@@ -26,12 +26,7 @@ from __future__ import annotations
 
 import datetime
 from enum import IntEnum
-from typing import (
-    Literal,
-    Type,
-    TypeAlias,
-    Union,
-)
+from typing import Literal, Union
 
 from httpcord.asset import Asset
 from httpcord.user import User
