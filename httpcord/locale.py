@@ -101,7 +101,7 @@ class Locale:
     ) -> None:
         import enum  # Import for validation
         self.name_localisations: LocaleDict = {}
-        self.description_localisations: {}
+        self.description_localisations: LocaleDict = {}
         if name_localisations:
             for key in name_localisations:
                 if not any(key == locale.value for locale in SupportedLocales):  # Validate against SupportedLocales
