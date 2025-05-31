@@ -31,9 +31,8 @@ from typing import (
     Final,
     Literal,
     overload,
+    TYPE_CHECKING,
 )
-
-from rich import TYPE_CHECKING
 
 from httpcord.command.types import Choice, CommandOption
 from httpcord.enums import (

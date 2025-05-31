@@ -25,15 +25,8 @@ SOFTWARE.
 from __future__ import annotations
 
 import enum
-import logging  # Import logging here for local use
-import mimetypes
-from email.encoders import encode_noop
-from email.generator import BytesGenerator
-from email.mime.application import MIMEApplication
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
+import logging
 from http import HTTPStatus
-from io import BytesIO
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -43,15 +36,11 @@ from typing import (
     Literal,
     overload,
 )
-from uuid import uuid4
 
-import aiohttp
 import uvicorn
-from aiohttp.payload import IOBasePayload, Payload
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from nacl.signing import VerifyKey
-from rich import json
 
 from httpcord.attachment import Attachment
 from httpcord.command import (
