@@ -25,7 +25,6 @@ SOFTWARE.
 from __future__ import annotations
 
 import enum
-import logging
 from http import HTTPStatus
 from typing import (
     TYPE_CHECKING,
@@ -226,16 +225,13 @@ class HTTPBot:
         timestamp: str | None = request.headers.get('X-Signature-Timestamp')
         if signature is None or timestamp is None:
             return False
-        message = timestamp.encode() + await request.body()
-        try:
-            vk = VerifyKey(bytes.fromhex(self._public_key))
-            vk.verify(message, bytes.fromhex(signature))
-        except ValueError as e:
-            logging.error(f"Verification error: {e}")  # Use logging.error instead of print
-            return False
-        except Exception as e:
-            logging.error(f"Unexpected error in verification: {e}")  # Use logging.error for debugging
-            return False
+        else:
+            message = timestamp.encode() + await request.body()
+            try:
+                vk = VerifyKey(bytes.fromhex(self._public_key))
+                vk.verify(message, bytes.fromhex(signature))
+            except Exception:
+                return False
         return True
 
     async def _handle_verified_interaction(self, request: Request) -> JSONResponse:

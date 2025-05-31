@@ -331,8 +331,11 @@ class CommandData:
         command: Command,
         options: list[dict[str, Any]],
     ) -> tuple[Command, list[dict[str, Any]]]:
-        if command.is_sub_command_group:
+        if command.is_sub_command_group and len(options) > 0:
             for sub_command in command._sub_commands.values():
+                if len(options) == 0:
+                    # For some ungodly reason, despite the `len(options) > 0` check above, this can **still** be empty.
+                    break
                 if sub_command.name == options[0]['name']:
                     command = sub_command
                     options = options[0]['options']
