@@ -29,9 +29,7 @@ from httpcord.asset import Asset
 from httpcord.avatar import NUMBER_OF_DEFAULT_AVATARS, AvatarDecoration
 
 
-__all__: tuple[str, ...] =(
-    "User",
-)
+__all__: tuple[str, ...] = ("User",)
 
 
 class Nameplate:
@@ -46,7 +44,8 @@ class Nameplate:
     def __init__(self, data: dict) -> None:
         self._expires_at: datetime.datetime | None = (
             datetime.datetime.fromtimestamp(int(data["expires_at"]), tz=datetime.timezone.utc)
-            if data["expires_at"] is not None else None
+            if data["expires_at"] is not None
+            else None
         )
         self._asset = data["asset"]
         self._pallet: str = data["pallet"]
@@ -83,9 +82,7 @@ class Nameplate:
 
 
 class Collectibles:
-    __slots__: Final[tuple[str, ...]] = (
-        "_nameplate",
-    )
+    __slots__: Final[tuple[str, ...]] = ("_nameplate",)
 
     def __init__(self, collectibles: dict | None) -> None:
         self._nameplate = Nameplate(collectibles["nameplate"]) if collectibles and "nameplate" in collectibles else None
@@ -107,9 +104,7 @@ class PrimaryGuild:
     def __init__(self, data: dict) -> None:
         self._badge: str | None = data.get("badge")
         self._identity_enabled: bool = data.get("identity_enabled", False)
-        self._identity_guild_id: int | None = (
-            int(data["identity_guild_id"]) if "identity_guild_id" in data else None
-        )
+        self._identity_guild_id: int | None = int(data["identity_guild_id"]) if "identity_guild_id" in data else None
         self._tag: str | None = data.get("tag")
 
     @property

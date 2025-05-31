@@ -26,6 +26,7 @@ class Fruits(StrEnum):
     kiwis = "kiwis"
     oranges = "oranges"
 
+
 @bot.command("pick")
 async def pick(interaction: Interaction, *, fruit: Fruits) -> CommandResponse:
     return CommandResponse(

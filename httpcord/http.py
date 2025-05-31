@@ -55,7 +55,7 @@ class Route:
         *,
         headers: dict[str, Any] | None = None,
         json: Any | None = None,
-        files: list[File] | None = None
+        files: list[File] | None = None,
     ) -> None:
         self._url = url
         self._headers = headers or {}
@@ -66,8 +66,8 @@ class Route:
     def content_type(self) -> str:
         """The content type of the route."""
         if self.json is not None:
-            return 'application/json'
-        return 'multipart/form-data'
+            return "application/json"
+        return "multipart/form-data"
 
     @property
     def url(self) -> str:
@@ -124,30 +124,24 @@ class HTTP:
         }
 
     if TYPE_CHECKING:
-        @overload
-        async def post(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]:
-            ...
 
         @overload
-        async def post(self, route: Route, expect_return: Literal[False] = ...) -> None:
-            ...
+        async def post(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]: ...
 
         @overload
-        async def put(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]:
-            ...
+        async def post(self, route: Route, expect_return: Literal[False] = ...) -> None: ...
 
         @overload
-        async def put(self, route: Route, expect_return: Literal[False] = ...) -> None:
-            ...
+        async def put(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]: ...
 
         @overload
-        async def patch(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]:
-            ...
+        async def put(self, route: Route, expect_return: Literal[False] = ...) -> None: ...
 
         @overload
-        async def patch(self, route: Route, expect_return: Literal[False] = ...) -> None:
-            ...
+        async def patch(self, route: Route, expect_return: Literal[True] = ...) -> dict[str, Any]: ...
 
+        @overload
+        async def patch(self, route: Route, expect_return: Literal[False] = ...) -> None: ...
 
     async def post(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
         try:
@@ -161,19 +155,15 @@ class HTTP:
             )
             if expect_return:
                 json = await resp.json()
-                logging.getLogger("httpcord").debug(
-                    f"POST {route.url} returned {json}"
-                )
+                logging.getLogger("httpcord").debug(f"POST {route.url} returned {json}")
                 return json
 
             if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-                logging.getLogger("httpcord").debug(
-                    f"POST {route.url} returned {await resp.json()}"
-                )
+                logging.getLogger("httpcord").debug(f"POST {route.url} returned {await resp.json()}")
         except ClientError as e:
-            raise RuntimeError(f'POST request failed: {e}')
+            raise RuntimeError(f"POST request failed: {e}")
         except Exception as e:
-            raise RuntimeError(f'Unexpected error in POST: {e}')
+            raise RuntimeError(f"Unexpected error in POST: {e}")
 
     async def put(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
         try:
@@ -187,19 +177,15 @@ class HTTP:
             )
             if expect_return:
                 json = await resp.json()
-                logging.getLogger("httpcord").debug(
-                    f"PUT {route.url} returned {json}"
-                )
+                logging.getLogger("httpcord").debug(f"PUT {route.url} returned {json}")
                 return json
 
             if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-                logging.getLogger("httpcord").debug(
-                    f"PUT {route.url} returned {await resp.json()}"
-                )
+                logging.getLogger("httpcord").debug(f"PUT {route.url} returned {await resp.json()}")
         except ClientError as e:
-            raise RuntimeError(f'PUT request failed: {e}')
+            raise RuntimeError(f"PUT request failed: {e}")
         except Exception as e:
-            raise RuntimeError(f'Unexpected error in PUT: {e}')
+            raise RuntimeError(f"Unexpected error in PUT: {e}")
 
     async def patch(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
         try:
@@ -213,17 +199,12 @@ class HTTP:
             )
             if expect_return:
                 json = await resp.json()
-                logging.getLogger("httpcord").debug(
-                    f"PATCH {route.url} returned {json}"
-                )
+                logging.getLogger("httpcord").debug(f"PATCH {route.url} returned {json}")
                 return json
 
             if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-                logging.getLogger("httpcord").debug(
-                    f"PATCH {route.url} returned {await resp.json()}"
-                )
+                logging.getLogger("httpcord").debug(f"PATCH {route.url} returned {await resp.json()}")
         except ClientError as e:
-            raise RuntimeError(f'PATCH request failed: {e}')
+            raise RuntimeError(f"PATCH request failed: {e}")
         except Exception as e:
-            raise RuntimeError(f'Unexpected error in PATCH: {e}')
-
+            raise RuntimeError(f"Unexpected error in PATCH: {e}")

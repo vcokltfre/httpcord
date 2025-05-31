@@ -27,11 +27,11 @@ from __future__ import annotations
 import enum
 import types
 from typing import (
+    TYPE_CHECKING,
     Any,
     Final,
     Literal,
     overload,
-    TYPE_CHECKING,
 )
 
 from httpcord.command.types import Choice, CommandOption
@@ -77,6 +77,7 @@ class Command:
     )
 
     if TYPE_CHECKING:
+
         @overload
         def __init__(
             self,
@@ -152,9 +153,9 @@ class Command:
         option_localisations: dict[str, Locale] | None = None,
     ) -> None:
         if not isinstance(name, str) or not name.strip():
-            raise ValueError('Command name must be a non-empty string.')
+            raise ValueError("Command name must be a non-empty string.")
         if sub_commands is not None and not all(isinstance(sub, Command) for sub in sub_commands):
-            raise ValueError('Sub-commands must be a list of Command objects.')
+            raise ValueError("Sub-commands must be a list of Command objects.")
         if (func is None and sub_commands is None) or (func is None and len(sub_commands or []) == 0):
             raise ValueError(f"Group command must have at least one sub command provided (`{name}`).")
 
@@ -177,10 +178,7 @@ class Command:
         self._command_type: ApplicationCommandType = command_type or ApplicationCommandType.CHAT_INPUT
         self._autocompletes: dict[str, AutocompleteFunc] = autocompletes or {}
         self._auto_defer: bool = auto_defer or False
-        self._sub_commands: dict[str, Command] = {
-            sub_command.name: sub_command
-            for sub_command in (sub_commands or [])
-        }
+        self._sub_commands: dict[str, Command] = {sub_command.name: sub_command for sub_command in (sub_commands or [])}
 
     @property
     def name(self) -> str:
@@ -192,11 +190,7 @@ class Command:
 
     @property
     def description(self) -> str | None:
-        return (
-            (self._description or "--")
-            if self.command_type == ApplicationCommandType.CHAT_INPUT
-            else None
-        )
+        return (self._description or "--") if self.command_type == ApplicationCommandType.CHAT_INPUT else None
 
     @property
     def autocompletes(self) -> dict[str, AutocompleteFunc]:
@@ -232,17 +226,14 @@ class Command:
                 if type(option_value) == types.UnionType:
                     option_value = option_value.__args__[0]
                 if option_value.__class__ == enum.EnumType:
-                    choices = [
-                        Choice(name=v.value, value=k)
-                        for k, v in option_value.__members__.items()
-                    ]
+                    choices = [Choice(name=v.value, value=k) for k, v in option_value.__members__.items()]
                     option_value = option_value.__base__.__bases__[0]
                 option_settings: dict[str, Any] = {}
                 annotation_settings = getattr(option_value, "__dict__", {})
-                if annotation_settings.get('_name') == "Annotated":
-                    if annotation_settings.get('__metadata__', None) is not None:
-                        annotated_type = annotation_settings['__metadata__'][0]
-                        option_value = annotation_settings['__origin__']
+                if annotation_settings.get("_name") == "Annotated":
+                    if annotation_settings.get("__metadata__", None) is not None:
+                        annotated_type = annotation_settings["__metadata__"][0]
+                        option_value = annotation_settings["__origin__"]
                         if type(annotated_type) in (Integer, Float):
                             option_settings = {
                                 "min_value": annotated_type.min_value,
@@ -335,9 +326,9 @@ class CommandData:
     ) -> tuple[Command, list[dict[str, Any]]]:
         if command.is_sub_command_group:
             for sub_command in command._sub_commands.values():
-                if sub_command.name == options[0]['name']:
+                if sub_command.name == options[0]["name"]:
                     command = sub_command
-                    options = options[0]['options']
+                    options = options[0]["options"]
         return command, options
 
     def __init__(
@@ -350,15 +341,13 @@ class CommandData:
             command, options = self._extract_to_base_command(command, options)
 
         self.command: Command = command
-        self.options: dict[str, Any] = {o['name']: o for o in options}
-        self.options_formatted: dict[str, Any] = {o['name']: o['value'] for o in options}
+        self.options: dict[str, Any] = {o["name"]: o for o in options}
+        self.options_formatted: dict[str, Any] = {o["name"]: o["value"] for o in options}
         self.interaction: Interaction = interaction
 
 
 class AutocompleteResponse:
-    __slotst__: Final[tuple[str, ...]] = (
-        "choices",
-    )
+    __slotst__: Final[tuple[str, ...]] = ("choices",)
 
     def __init__(self, choices: list[Choice]) -> None:
         self.choices: list[Choice] = choices

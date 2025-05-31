@@ -18,11 +18,13 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("get-user")
 async def get_user(interaction: Interaction, *, user: User) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"User {user.username} selected.",
     )
+
 
 bot.start(CLIENT_TOKEN)

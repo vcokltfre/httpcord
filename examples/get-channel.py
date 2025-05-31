@@ -18,11 +18,13 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("get-channel")
 async def get_channel(interaction: Interaction, *, channel: BaseChannel) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Channel {channel.id} selected.",
     )
+
 
 bot.start(CLIENT_TOKEN)

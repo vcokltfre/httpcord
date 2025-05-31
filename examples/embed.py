@@ -18,6 +18,7 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("embed")
 async def embed(interaction: Interaction) -> CommandResponse:
     embed = Embed(title="Embed title")
@@ -29,5 +30,6 @@ async def embed(interaction: Interaction) -> CommandResponse:
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         embeds=[embed],
     )
+
 
 bot.start(CLIENT_TOKEN)

@@ -25,9 +25,7 @@ SOFTWARE.
 from typing import Any, Final
 
 
-__all__: Final[tuple[str, ...]] = (
-    "Embed",
-)
+__all__: Final[tuple[str, ...]] = ("Embed",)
 
 
 class EmbedFooter:
@@ -107,11 +105,13 @@ class Embed:
         value: str | None = None,
         inline: bool = False,
     ) -> None:
-        self._fields.append(EmbedField(
-            name=name,
-            value=value,
-            inline=inline,
-        ))
+        self._fields.append(
+            EmbedField(
+                name=name,
+                value=value,
+                inline=inline,
+            )
+        )
 
     def set_footer(
         self,
@@ -129,9 +129,6 @@ class Embed:
             "title": self.title,
             "description": self.description,
             "color": self.colour,
-            "footer": (
-                {} if not self._footer
-                else self._footer.to_dict()
-            ),
+            "footer": ({} if not self._footer else self._footer.to_dict()),
             "fields": [f.to_dict() for f in self._fields],
         }

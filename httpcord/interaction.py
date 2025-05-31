@@ -47,9 +47,7 @@ if TYPE_CHECKING:
     from httpcord.bot import HTTPBot
 
 
-__all__: Final[tuple[str, ...]] = (
-    "Interaction",
-)
+__all__: Final[tuple[str, ...]] = ("Interaction",)
 
 
 class Resolved:
@@ -67,10 +65,16 @@ class Resolved:
         self._users: dict[int, User] = {int(k): User(v) for k, v in resolved.get("users", {}).items()}
         for user_id in resolved.get("members", {}).keys():
             resolved["members"][str(user_id)]["user"] = resolved["users"][str(user_id)]
-        self._members: dict[int, Member] = {int(k): Member(v, guild_id or 0) for k, v in resolved.get("members", {}).items()}
-        self._channels: dict[int, Channel] = {int(k): BaseChannel.from_data(v) for k, v in resolved.get("channels", {}).items()}
+        self._members: dict[int, Member] = {
+            int(k): Member(v, guild_id or 0) for k, v in resolved.get("members", {}).items()
+        }
+        self._channels: dict[int, Channel] = {
+            int(k): BaseChannel.from_data(v) for k, v in resolved.get("channels", {}).items()
+        }
         self._roles: dict[int, Role] = {int(k): Role(v) for k, v in resolved.get("roles", {}).items()}
-        self._messages: dict[int, PartialMessage] = {int(k): PartialMessage(v) for k, v in resolved.get("messages", {}).items()}
+        self._messages: dict[int, PartialMessage] = {
+            int(k): PartialMessage(v) for k, v in resolved.get("messages", {}).items()
+        }
 
     @property
     def users(self) -> dict[int, User]:
@@ -195,7 +199,8 @@ class Interaction[HTTPBotClient: HTTPBot = HTTPBot]:
 
         deferral_type: InteractionResponseType = (
             InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            if with_message else InteractionResponseType.DEFERRED_UPDATE_MESSAGE
+            if with_message
+            else InteractionResponseType.DEFERRED_UPDATE_MESSAGE
         )
         self._deferred = True
         self._responded = True
@@ -204,11 +209,13 @@ class Interaction[HTTPBotClient: HTTPBot = HTTPBot]:
             "type": deferral_type.value,
         }
         if ephemeral:
-            payload.update({
-                "data": {
-                    "flags": InteractionResponseFlags.EPHEMERAL.value,
-                },
-            })
+            payload.update(
+                {
+                    "data": {
+                        "flags": InteractionResponseFlags.EPHEMERAL.value,
+                    },
+                }
+            )
 
         await self.bot.http.post(
             Route(
@@ -293,11 +300,12 @@ class CommandResponse:
                 "embeds": [e.to_dict() for e in self.embeds],
                 "attachments": [
                     {
-                        'id': idx,
-                        'filename': file.filename,
-                        'description': file.description,
-                        'spoiler': file.spoiler,
-                    } for idx, file in enumerate(self.files)
+                        "id": idx,
+                        "filename": file.filename,
+                        "description": file.description,
+                        "spoiler": file.spoiler,
+                    }
+                    for idx, file in enumerate(self.files)
                 ],
             },
         }

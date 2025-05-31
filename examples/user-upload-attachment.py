@@ -18,11 +18,13 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("user-upload-attachment")
 async def user_upload_attachment(interaction: Interaction, *, attachment: Attachment) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"You uploaded an attachment with name: {attachment.filename}!",
     )
+
 
 bot.start(CLIENT_TOKEN)

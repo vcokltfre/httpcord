@@ -61,20 +61,20 @@ class PartialMember:
         self._avatar: str | None = data.get("avatar")
         self._avatar_decoration: dict | None = data.get("avatar_decoration_data")
         self._banner: str | None = data.get("banner")
-        self._communication_disabled_until: datetime.datetime | None = from_timestamp(data["communication_disabled_until"]) if data.get("communication_disabled_until") else None
+        self._communication_disabled_until: datetime.datetime | None = (
+            from_timestamp(data["communication_disabled_until"]) if data.get("communication_disabled_until") else None
+        )
         self._flags: int = data.get("flags", 0)
         self._joined_at: datetime.datetime = from_timestamp(data["joined_at"])
         self._nick: str | None = data.get("nick")
         self._pending: bool = data.get("pending", False)
         self._permissions: int = int(data["permissions"])
         self._premium_since: datetime.datetime | None = (
-            from_timestamp(data["premium_since"])
-            if data.get("premium_since") else None
+            from_timestamp(data["premium_since"]) if data.get("premium_since") else None
         )
         self._roles: list[int] = data["roles"]
         self._unusual_dm_activity_until: datetime.datetime | None = (
-            from_timestamp(data["unusual_dm_activity_until"])
-            if data.get("unusual_dm_activity_until") else None
+            from_timestamp(data["unusual_dm_activity_until"]) if data.get("unusual_dm_activity_until") else None
         )
 
     @property
@@ -161,9 +161,7 @@ class PartialMember:
 
 
 class PartialMemberWithUser(PartialMember):
-    __slots__: tuple[str, ...] = (
-        "_user",
-    )
+    __slots__: tuple[str, ...] = ("_user",)
 
     def __init__(self, data: dict, guild_id: int) -> None:
         super().__init__(data, int(data["user"]["id"]), guild_id)

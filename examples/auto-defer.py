@@ -19,13 +19,17 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("hello-world-deferred", auto_defer=True)
 async def hello_world_long(interaction: Interaction) -> CommandResponse:
     await asyncio.sleep(3)
-    await interaction.followup(CommandResponse(
-        type=InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
-        content=f"Hello, {interaction.user.mention}!",
-    ))
+    await interaction.followup(
+        CommandResponse(
+            type=InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
+            content=f"Hello, {interaction.user.mention}!",
+        )
+    )
     return CommandResponse(InteractionResponseType.PONG)
+
 
 bot.start(CLIENT_TOKEN)

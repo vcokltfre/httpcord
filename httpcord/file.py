@@ -26,9 +26,7 @@ import io
 import os
 
 
-__all__: tuple[str, ...] = (
-    "File",
-)
+__all__: tuple[str, ...] = ("File",)
 
 
 class File:
@@ -81,4 +79,3 @@ class File:
             return self._data
         else:
             raise TypeError("File pointer must be a PathLike or BufferedIOBase instance.")
-

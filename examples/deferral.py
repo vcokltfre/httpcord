@@ -17,17 +17,22 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("defer-me")
 async def defer_me(interaction: Interaction) -> CommandResponse:
     await interaction.defer()
-    await interaction.followup(CommandResponse(
-        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"Deferred message.",
-    ))
-    await interaction.followup(CommandResponse(
-        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"Second follow up message.",
-    ))
+    await interaction.followup(
+        CommandResponse(
+            type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            content=f"Deferred message.",
+        )
+    )
+    await interaction.followup(
+        CommandResponse(
+            type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            content=f"Second follow up message.",
+        )
+    )
 
     # You can return another followup message, or just a PONG if you want to do nothing else.
     return CommandResponse(InteractionResponseType.PONG)

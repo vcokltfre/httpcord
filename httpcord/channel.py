@@ -74,9 +74,7 @@ class BaseChannel:
         self._id: int = int(data["id"])
         self._flags: int = data.get("flags", 0)
         self._type: int = int(data["type"])
-        self._last_message_id: int | None = (
-            int(data["last_message_id"]) if data.get("last_message_id") else None
-        )
+        self._last_message_id: int | None = int(data["last_message_id"]) if data.get("last_message_id") else None
         self._last_pin_timestamp: str | None = data.get("last_pin_timestamp")
 
     @property
@@ -189,9 +187,7 @@ class GuildChannel(BaseChannel):
 
 
 class DMChannel(BaseChannel):
-    __slots__: tuple[str, ...] = (
-        "_recipients",
-    )
+    __slots__: tuple[str, ...] = ("_recipients",)
 
     def __init__(self, data: dict) -> None:
         super().__init__(data)
@@ -234,10 +230,14 @@ class GroupDMChannel(DMChannel):
     @property
     def icon(self) -> Asset | None:
         """The icon of the group DM channel."""
-        return Asset(
-            base_url=f"https://cdn.discordapp.com/channel-icons/{self.id}",
-            code=self._icon,
-        ) if self._icon else None
+        return (
+            Asset(
+                base_url=f"https://cdn.discordapp.com/channel-icons/{self.id}",
+                code=self._icon,
+            )
+            if self._icon
+            else None
+        )
 
     @property
     def owner_id(self) -> int:

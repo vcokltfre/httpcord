@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 from enum import StrEnum
 from typing import Literal
 
@@ -35,11 +34,38 @@ __all__: tuple[str, ...] = (
 )
 
 SupportedLocalesLiterals = Literal[
-    "id", "da", "de", "en-GB", "en-US", "es-ES",
-    "es-419", "fr", "hr", "it", "lt", "hu", "nl",
-    "no", "pl", "pt_BR", "ro", "fi", "sv_SE", "vi",
-    "tr", "cs", "el", "bg", "ru", "uk", "hi", "th",
-    "zh_CN", "ja", "zh_TW", "ko",
+    "id",
+    "da",
+    "de",
+    "en-GB",
+    "en-US",
+    "es-ES",
+    "es-419",
+    "fr",
+    "hr",
+    "it",
+    "lt",
+    "hu",
+    "nl",
+    "no",
+    "pl",
+    "pt_BR",
+    "ro",
+    "fi",
+    "sv_SE",
+    "vi",
+    "tr",
+    "cs",
+    "el",
+    "bg",
+    "ru",
+    "uk",
+    "hi",
+    "th",
+    "zh_CN",
+    "ja",
+    "zh_TW",
+    "ko",
 ]
 
 
@@ -100,17 +126,18 @@ class Locale:
         description_localisations: LocaleDict | None = None,
     ) -> None:
         import enum  # Import for validation
+
         self.name_localisations: LocaleDict = {}
         self.description_localisations: LocaleDict = {}
         if name_localisations:
             for key in name_localisations:
                 if not any(key == locale.value for locale in SupportedLocales):  # Validate against SupportedLocales
-                    raise ValueError(f'Invalid locale key: {key}')
+                    raise ValueError(f"Invalid locale key: {key}")
             self.name_localisations = name_localisations
         if description_localisations:
             for key in description_localisations:
                 if not any(key == locale.value for locale in SupportedLocales):  # Validate against SupportedLocales
-                    raise ValueError(f'Invalid locale key: {key}')
+                    raise ValueError(f"Invalid locale key: {key}")
             self.description_localisations = description_localisations
         if name:
             self.name_localisations[DEFAULT_LOCALE] = name  # Assuming DEFAULT_LOCALE is valid
