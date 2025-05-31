@@ -99,7 +99,6 @@ class Locale:
         name_localisations: LocaleDict | None = None,
         description_localisations: LocaleDict | None = None,
     ) -> None:
-        import enum  # Import for validation
         self.name_localisations: LocaleDict = {}
         self.description_localisations: LocaleDict = {}
         if name_localisations:
