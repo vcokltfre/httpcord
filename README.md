@@ -1,11 +1,19 @@
-# httpcord
-A Python Discord Interaction bot API wrapper.
-
-## `pip install --update httpcord`
+# HTTPCord
 
 A light weight feature-packed HTTP interactions API wrapper for Discord written in Python.
 
+## Installation
+
+`pip install --update httpcord`
+
+## Support
+
+Discord server: https://discord.gg/yfY5XASZ85
+
+## Examples
+
 From `examples/*.py`
+
 ```py
 import asyncio
 from enum import StrEnum
