@@ -24,15 +24,16 @@ SOFTWARE.
 
 from __future__ import annotations
 
+import enum
+import logging  # Import logging here for local use
+import mimetypes
 from email.encoders import encode_noop
 from email.generator import BytesGenerator
 from email.mime.application import MIMEApplication
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
-import enum
 from http import HTTPStatus
 from io import BytesIO
-import mimetypes
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -45,13 +46,12 @@ from typing import (
 from uuid import uuid4
 
 import aiohttp
-from aiohttp.payload import IOBasePayload, Payload
-from rich import json
 import uvicorn
+from aiohttp.payload import IOBasePayload, Payload
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from nacl.signing import VerifyKey
-import logging  # Import logging here for local use
+from rich import json
 
 from httpcord.attachment import Attachment
 from httpcord.command import (
@@ -71,7 +71,6 @@ from httpcord.errors import UnknownCommand
 from httpcord.func_protocol import AutocompleteFunc
 from httpcord.http import HTTP, Route
 from httpcord.interaction import CommandResponse, Interaction
-
 from httpcord.locale import Locale, LocaleDict
 from httpcord.member import Member
 from httpcord.types import JSONResponseError, JSONResponseType

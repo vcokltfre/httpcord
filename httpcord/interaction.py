@@ -35,12 +35,12 @@ from fastapi import Request
 from httpcord.channel import BaseChannel, Channel
 from httpcord.embed import Embed
 from httpcord.enums import InteractionResponseFlags, InteractionResponseType
+from httpcord.file import File
 from httpcord.http import Route
 from httpcord.member import Member
-from httpcord.role import Role
-from httpcord.file import File
-from httpcord.user import User
 from httpcord.message import PartialMessage
+from httpcord.role import Role
+from httpcord.user import User
 
 
 if TYPE_CHECKING:

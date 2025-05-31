@@ -3,8 +3,8 @@ from httpcord import (
     HTTPBot,
     Interaction,
 )
-from httpcord.enums import InteractionResponseType
 from httpcord.attachment import Attachment
+from httpcord.enums import InteractionResponseType
 
 
 CLIENT_ID = 0000000000000000000000

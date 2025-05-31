@@ -1,11 +1,12 @@
 from io import BytesIO
+
 from httpcord import (
     CommandResponse,
     HTTPBot,
     Interaction,
 )
-from httpcord.enums import InteractionResponseType
 from httpcord.attachment import Attachment
+from httpcord.enums import InteractionResponseType
 from httpcord.file import File
 
 
