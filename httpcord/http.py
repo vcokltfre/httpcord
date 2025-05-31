@@ -22,21 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import json
 import logging
-import mimetypes
 from typing import (
     TYPE_CHECKING,
     Any,
     Final,
     Literal,
-    Union,
     overload,
 )
 
 from aiohttp import ClientSession
-from aiohttp.formdata import FormData
-from pygments.lexers import j
-from rich import json
+from aiohttp.client import ClientTimeout
+from aiohttp.client_exceptions import ClientError
 
 from httpcord.file import File
 
@@ -119,7 +117,7 @@ class HTTP:
 
     def __init__(self, token: str) -> None:
         self._token = token
-        self._session = ClientSession(timeout=aiohttp.ClientTimeout(total=30))  # Add a 30-second timeout
+        self._session = ClientSession(timeout=ClientTimeout(total=30))  # Add a 30-second timeout
         self._headers: dict[str, str] = {
             "Authorization": f"Bot {self._token}",
             "User-Agent": "HTTPCord / Python - https://git.uwu.gal/pyhttpcord",
@@ -172,7 +170,7 @@ class HTTP:
                 logging.getLogger("httpcord").debug(
                     f"POST {route.url} returned {await resp.json()}"
                 )
-        except aiohttp.ClientError as e:
+        except ClientError as e:
             raise RuntimeError(f'POST request failed: {e}')
         except Exception as e:
             raise RuntimeError(f'Unexpected error in POST: {e}')
@@ -198,7 +196,7 @@ class HTTP:
                 logging.getLogger("httpcord").debug(
                     f"PUT {route.url} returned {await resp.json()}"
                 )
-        except aiohttp.ClientError as e:
+        except ClientError as e:
             raise RuntimeError(f'PUT request failed: {e}')
         except Exception as e:
             raise RuntimeError(f'Unexpected error in PUT: {e}')
@@ -224,7 +222,7 @@ class HTTP:
                 logging.getLogger("httpcord").debug(
                     f"PATCH {route.url} returned {await resp.json()}"
                 )
-        except aiohttp.ClientError as e:
+        except ClientError as e:
             raise RuntimeError(f'PATCH request failed: {e}')
         except Exception as e:
             raise RuntimeError(f'Unexpected error in PATCH: {e}')
