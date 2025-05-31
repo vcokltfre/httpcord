@@ -51,7 +51,7 @@ class CommandCallabackProtocol(Protocol[P, R]):
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, interaction: Interaction, *args: P.args, **kwargs: P.kwargs) -> R:
+    async def __call__(self, interaction: Interaction[Any], *args: P.args, **kwargs: P.kwargs) -> R:
         ...
 
 
@@ -59,9 +59,9 @@ class AutocompleteCallabackProtocol(Protocol[P, R]):
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, interaction: Interaction, current: str) -> R:
+    async def __call__(self, interaction: Interaction[Any], current: str) -> R:
         ...
 
 
 CommandFunc = CommandCallabackProtocol[Any, CommandResponse]
-AutocompleteFunc = Callable[[Interaction, str], Coroutine[Any, Any, List[Choice]]]
+AutocompleteFunc = Callable[[Interaction[Any], str], Coroutine[Any, Any, List[Choice]]]

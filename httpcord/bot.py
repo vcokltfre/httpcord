@@ -24,8 +24,15 @@ SOFTWARE.
 
 from __future__ import annotations
 
+from email.encoders import encode_noop
+from email.generator import BytesGenerator
+from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 import enum
 from http import HTTPStatus
+from io import BytesIO
+import mimetypes
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,12 +42,17 @@ from typing import (
     Literal,
     overload,
 )
+from uuid import uuid4
 
+import aiohttp
+from aiohttp.payload import IOBasePayload, Payload
+from rich import json
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from nacl.signing import VerifyKey
 
+from httpcord.attachment import Attachment
 from httpcord.command import (
     AutocompleteResponse,
     Command,
@@ -57,10 +69,12 @@ from httpcord.enums import (
 from httpcord.errors import UnknownCommand
 from httpcord.func_protocol import AutocompleteFunc
 from httpcord.http import HTTP, Route
-from httpcord.interaction import Interaction
+from httpcord.interaction import CommandResponse, Interaction
 
 from httpcord.locale import Locale, LocaleDict
-from httpcord.types import JSONResponseError, JSONResponseType, File
+from httpcord.member import Member
+from httpcord.types import JSONResponseError, JSONResponseType
+from httpcord.user import User
 
 
 __all__: Final[tuple[str, ...]] = (
@@ -272,7 +286,7 @@ class HTTPBot:
             interaction=interaction
         )
 
-    async def __process_commands(self, request: Request, data: dict[str, Any]) -> JSONResponse:
+    async def __process_commands(self, request: Request, data: dict[str, Any]) -> Any:
         command_data = await self.___get_command_data(request, data)
         if not command_data:
             raise UnknownCommand(f"Unknown command used")
@@ -291,11 +305,46 @@ class HTTPBot:
         command_options = command.options or {}
         for option_name, option_value in options.items():
             if command_options[option_name]._type == ApplicationCommandOptionType.ATTACHMENT:
-                attachment_id = option_value
-                options[option_name] = File.from_option(data['data']['resolved']['attachments'][attachment_id])
+                options[option_name] = Attachment.from_option(data['data']['resolved']['attachments'][option_value])
+            elif command_options[option_name]._type == ApplicationCommandOptionType.CHANNEL:
+                options[option_name] = interaction.resolved.channels[int(option_value)]
+            elif command_options[option_name]._type == ApplicationCommandOptionType.ROLE:
+                options[option_name] = interaction.resolved.roles[int(option_value)]
+            elif command_options[option_name]._native_type == Member:
+                options[option_name] = interaction.resolved.members[int(option_value)]
+            elif command_options[option_name]._native_type == User:
+                options[option_name] = interaction.resolved.users[int(option_value)]
 
         response = await command.invoke(interaction, **options)
-        return JSONResponse(content=response.to_dict())
+        return await self.__process_response(response, interaction)
+
+    async def __process_response(
+        self,
+        response: CommandResponse,
+        interaction: Interaction,
+    ) -> Any:
+        if len(response.files) == 0:
+            return JSONResponse(
+                status_code=HTTPStatus.OK,
+                content=response.to_dict(),
+            )
+
+        if not interaction.deffered:
+            await interaction.defer(
+                with_message=True,
+                ephemeral=response.ephemeral,
+            )
+
+        json_payload = response.to_dict()["data"]
+        del json_payload["flags"]
+        route = Route(
+            url=f"/webhooks/{self._id}/{interaction._token}/messages/@original",
+            json=json_payload,
+            files=response.files,
+        )
+        await self.http.patch(route)
+
+        return None
 
     async def __process_autocompletes(self, request: Request, data: dict[str, Any]) -> JSONResponse:
         command_data = await self.___get_command_data(request, data)
