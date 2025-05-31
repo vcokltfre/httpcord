@@ -3,3 +3,4 @@ PyNaCl
 uvicorn
 aiohttp
 python-dateutil
+python-multipart

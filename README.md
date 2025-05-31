@@ -9,16 +9,27 @@ From `examples/*.py`
 ```py
 import asyncio
 from enum import StrEnum
+from io import BytesIO
 import random
+from typing import Annotated
 
 from httpcord import HTTPBot, CommandResponse, Interaction
+from httpcord.command import Command
+from httpcord.command.base import InteractionContextType
+from httpcord.command.types import Choice
 from httpcord.embed import Embed
-from httpcord.enums import InteractionResponseType
-from httpcord.types import AutocompleteChoice, Integer, Float, String, File
+from httpcord.enums import ApplicationCommandType, ApplicationIntegrationType, InteractionResponseType
+from httpcord.member import Member
+from httpcord.types import Integer, Float, String
+from httpcord.attachment import Attachment
+from httpcord.channel import BaseChannel
+from httpcord.role import Role
+from httpcord.file import File
 from httpcord.locale import Locale
+from httpcord.user import User
 
 
-CLIENT_ID = 0000000000000000000000
+CLIENT_ID = 00000000000000000000
 CLIENT_PUBLIC_KEY = "..."
 CLIENT_TOKEN = "..."
 
@@ -29,11 +40,12 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("hello-world")
 async def hello_world(interaction: Interaction) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"hello, {interaction.user.mention}! You joined this server at <t:{int(interaction.user.joined_at.timestamp())}:F>.",
+        content=f"hello, {interaction.user.mention}!",
     )
 
 @bot.command("ephemeral")
@@ -78,11 +90,13 @@ ANIMALS: list[str] = [
     "axolotl",
 ]
 
-async def string_autocomplete(interaction: Interaction, current: str) -> list[AutocompleteChoice]:
+
+async def string_autocomplete(interaction: Interaction, current: str) -> list[Choice]:
     return [
-        AutocompleteChoice(name=animal, value=animal)
+        Choice(name=animal, value=animal)
         for animal in ANIMALS if current.lower() in animal
     ]
+
 
 @bot.command(
     name="autocomplete",
@@ -208,11 +222,11 @@ async def string_length_test(
         content=f"Wow! {echo}",
     )
 
-@bot.command("upload-file")
-async def upload_file(interaction: Interaction, *, file: File) -> CommandResponse:
+@bot.command("user-upload-attachment")
+async def user_upload_attachment(interaction: Interaction, *, attachment: Attachment) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"You uploaded a file with name: {file.filename}!",
+        content=f"You uploaded a file with name: {attachment.filename}!",
     )
 
 @bot.command(
@@ -226,11 +240,82 @@ async def upload_file(interaction: Interaction, *, file: File) -> CommandRespons
         "parameter": Locale(description="This is a described parameter.")
     },
 )
-async def hello_world(interaction: Interaction, *, parameter: str) -> CommandResponse:
+async def hello_world_translated(interaction: Interaction, *, parameter: str) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Hello, world!",
     )
 
-bot.start(CLIENT_TOKEN)
+
+@bot.command("get-channel")
+async def get_channel(interaction: Interaction, *, channel: BaseChannel) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Channel {channel.id} selected.",
+    )
+
+
+@bot.command("get-user",
+    allowed_contexts=[
+        InteractionContextType.PRIVATE_CHANNEL,
+        InteractionContextType.GUILD,
+        InteractionContextType.BOT_DM,
+    ],
+    integration_types=[
+        ApplicationIntegrationType.GUILD_INSTALL,
+        ApplicationIntegrationType.USER_INSTALL,
+    ],
+)
+async def get_user(interaction: Interaction, *, user: User) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"User {user} selected.",
+    )
+
+
+@bot.command("get-member",
+    allowed_contexts=[
+        InteractionContextType.PRIVATE_CHANNEL,
+        InteractionContextType.GUILD,
+        InteractionContextType.BOT_DM,
+    ],
+    integration_types=[
+        ApplicationIntegrationType.GUILD_INSTALL,
+        ApplicationIntegrationType.USER_INSTALL,
+    ],
+)
+async def get_member(interaction: Interaction, *, member: Member) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"PartialMemberWithUser {member} selected.",
+    )
+
+
+@bot.command("get-role")
+async def get_role(interaction: Interaction, *, role: Role) -> CommandResponse:
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"Role {role.id} selected.",
+    )
+
+
+@bot.command("attachment-response")
+async def attachment_response(interaction: Interaction, *, attachment: Attachment) -> CommandResponse:
+    attachment_request = await interaction.bot.http._session.get(attachment.url)
+    attachment_data = await attachment_request.read()
+    attachment_bytes = BytesIO(attachment_data)
+    attachment_bytes.seek(0)
+    return CommandResponse(
+        type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        content=f"You uploaded an attachment with name: {attachment.filename}, i've attached it to this message!",
+        files=[
+            File(
+                fp=attachment_bytes,
+                filename=attachment.filename,
+            )
+        ]
+    )
+
+
+bot.start(token=CLIENT_TOKEN, port=8080)
 ```

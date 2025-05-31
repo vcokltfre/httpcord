@@ -45,7 +45,7 @@ from httpcord.enums import (
 )
 from httpcord.func_protocol import AutocompleteFunc, CommandFunc
 from httpcord.interaction import CommandResponse, Interaction
-from httpcord.locale import DEFAULT_LOCALE, Locale, LocaleDict
+from httpcord.locale import Locale, LocaleDict
 from httpcord.types import (
     TYPE_CONVERSION_TABLE,
     Float,
@@ -266,6 +266,7 @@ class Command:
                     name=option_name,
                     description=option_description,
                     type=TYPE_CONVERSION_TABLE[option_value],  # type: ignore[reportArgumentType]
+                    native_type=option_value,  # type: ignore[reportArgumentType]
                     required=required,
                     autocomplete=option_name in self._autocompletes.keys(),  # type: ignore[reportArgumentType]
                     options=None,
@@ -282,6 +283,7 @@ class Command:
                     name=name,
                     description=command.description,
                     type=ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+                    native_type=None,
                     required=None,
                     autocomplete=None,
                     options=command.options,
@@ -292,6 +294,7 @@ class Command:
                 name=name,
                 description=command.description,
                 type=ApplicationCommandOptionType.SUB_COMMAND,
+                native_type=None,
                 required=None,
                 autocomplete=False,
                 options=command.options,

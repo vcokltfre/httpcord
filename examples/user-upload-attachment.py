@@ -4,6 +4,7 @@ from httpcord import (
     Interaction,
 )
 from httpcord.enums import InteractionResponseType
+from httpcord.attachment import Attachment
 
 
 CLIENT_ID = 0000000000000000000000
@@ -17,11 +18,11 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
-@bot.command("hello-world")
-async def hello_world(interaction: Interaction) -> CommandResponse:
+@bot.command("user-upload-attachment")
+async def user_upload_attachment(interaction: Interaction, *, attachment: Attachment) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"hello, {interaction.user.mention}!",
+        content=f"You uploaded an attachment with name: {attachment.filename}!",
     )
 
 bot.start(CLIENT_TOKEN)
