@@ -151,10 +151,6 @@ class Command:
         description_localisations: LocaleDict | None = None,
         option_localisations: dict[str, Locale] | None = None,
     ) -> None:
-        if not isinstance(name, str) or not name.strip():
-            raise ValueError('Command name must be a non-empty string.')
-        if sub_commands is not None and not all(isinstance(sub, Command) for sub in sub_commands):
-            raise ValueError('Sub-commands must be a list of Command objects.')
         if (func is None and sub_commands is None) or (func is None and len(sub_commands or []) == 0):
             raise ValueError(f"Group command must have at least one sub command provided (`{name}`).")
 
@@ -333,8 +329,11 @@ class CommandData:
         command: Command,
         options: list[dict[str, Any]],
     ) -> tuple[Command, list[dict[str, Any]]]:
-        if command.is_sub_command_group:
+        if command.is_sub_command_group and len(options) > 0:
             for sub_command in command._sub_commands.values():
+                if len(options) == 0:
+                    # For some ungodly reason, despite the `len(options) > 0` check above, this can **still** be empty.
+                    break
                 if sub_command.name == options[0]['name']:
                     command = sub_command
                     options = options[0]['options']
