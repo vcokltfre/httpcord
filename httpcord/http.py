@@ -34,7 +34,6 @@ from typing import (
 )
 
 from aiohttp import ClientSession
-import aiohttp
 from aiohttp.formdata import FormData
 from pygments.lexers import j
 from rich import json
@@ -120,7 +119,7 @@ class HTTP:
 
     def __init__(self, token: str) -> None:
         self._token = token
-        self._session = ClientSession()
+        self._session = ClientSession(timeout=aiohttp.ClientTimeout(total=30))  # Add a 30-second timeout
         self._headers: dict[str, str] = {
             "Authorization": f"Bot {self._token}",
             "User-Agent": "HTTPCord / Python - https://git.uwu.gal/pyhttpcord",
@@ -153,68 +152,80 @@ class HTTP:
 
 
     async def post(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
-        headers = self._headers
-        headers.update(route.headers)
-        resp = await self._session.post(
-            url=route.url,
-            json=route.json,
-            data=route.data,
-            headers=headers,
-        )
-
-        if expect_return:
-            json = await resp.json()
-            logging.getLogger("httpcord").debug(
-                f"POST {route.url} returned {json}"
+        try:
+            headers = self._headers
+            headers.update(route.headers)
+            resp = await self._session.post(
+                url=route.url,
+                json=route.json,
+                data=route.data,
+                headers=headers,
             )
-            return json
+            if expect_return:
+                json = await resp.json()
+                logging.getLogger("httpcord").debug(
+                    f"POST {route.url} returned {json}"
+                )
+                return json
 
-        if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-            logging.getLogger("httpcord").debug(
-                f"POST {route.url} returned {await resp.json()}"
-            )
-
+            if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
+                logging.getLogger("httpcord").debug(
+                    f"POST {route.url} returned {await resp.json()}"
+                )
+        except aiohttp.ClientError as e:
+            raise RuntimeError(f'POST request failed: {e}')
+        except Exception as e:
+            raise RuntimeError(f'Unexpected error in POST: {e}')
 
     async def put(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
-        headers = self._headers
-        headers.update(route.headers)
-        resp = await self._session.put(
-            url=route.url,
-            json=route.json,
-            data=route.data,
-            headers=headers,
-        )
-
-        if expect_return:
-            json = await resp.json()
-            logging.getLogger("httpcord").debug(
-                f"PUT {route.url} returned {json}"
+        try:
+            headers = self._headers
+            headers.update(route.headers)
+            resp = await self._session.put(
+                url=route.url,
+                json=route.json,
+                data=route.data,
+                headers=headers,
             )
-            return json
+            if expect_return:
+                json = await resp.json()
+                logging.getLogger("httpcord").debug(
+                    f"PUT {route.url} returned {json}"
+                )
+                return json
 
-        if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-            logging.getLogger("httpcord").debug(
-                f"GET {route.url} returned {await resp.json()}"
-            )
+            if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
+                logging.getLogger("httpcord").debug(
+                    f"PUT {route.url} returned {await resp.json()}"
+                )
+        except aiohttp.ClientError as e:
+            raise RuntimeError(f'PUT request failed: {e}')
+        except Exception as e:
+            raise RuntimeError(f'Unexpected error in PUT: {e}')
 
     async def patch(self, route: Route, expect_return: bool = True) -> dict[str, Any] | None:
-        headers = self._headers
-        headers.update(route.headers)
-        resp = await self._session.patch(
-            url=route.url,
-            json=route.json,
-            data=route.data,
-            headers=headers,
-        )
-
-        if expect_return:
-            json = await resp.json()
-            logging.getLogger("httpcord").debug(
-                f"PATCH {route.url} returned {json}"
+        try:
+            headers = self._headers
+            headers.update(route.headers)
+            resp = await self._session.patch(
+                url=route.url,
+                json=route.json,
+                data=route.data,
+                headers=headers,
             )
-            return json
+            if expect_return:
+                json = await resp.json()
+                logging.getLogger("httpcord").debug(
+                    f"PATCH {route.url} returned {json}"
+                )
+                return json
 
-        if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
-            logging.getLogger("httpcord").debug(
-                f"PATCH {route.url} returned {await resp.json()}"
-            )
+            if logging.getLogger("httpcord").isEnabledFor(logging.DEBUG):
+                logging.getLogger("httpcord").debug(
+                    f"PATCH {route.url} returned {await resp.json()}"
+                )
+        except aiohttp.ClientError as e:
+            raise RuntimeError(f'PATCH request failed: {e}')
+        except Exception as e:
+            raise RuntimeError(f'Unexpected error in PATCH: {e}')
+

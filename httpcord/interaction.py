@@ -209,6 +209,7 @@ class Interaction[HTTPBotClient: HTTPBot = HTTPBot]:
                     "flags": InteractionResponseFlags.EPHEMERAL.value,
                 },
             })
+
         await self.bot.http.post(
             Route(
                 f"/interactions/{self.id}/{self.token}/callback",
