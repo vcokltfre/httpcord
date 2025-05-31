@@ -33,7 +33,6 @@ from typing import (
 )
 
 from aiohttp import ClientSession
-from aiohttp.client import ClientTimeout
 from aiohttp.client_exceptions import ClientError
 
 from httpcord.file import File
@@ -117,7 +116,7 @@ class HTTP:
 
     def __init__(self, token: str) -> None:
         self._token = token
-        self._session = ClientSession(timeout=ClientTimeout(total=30))  # Add a 30-second timeout
+        self._session = ClientSession()
         self._headers: dict[str, str] = {
             "Authorization": f"Bot {self._token}",
             "User-Agent": "HTTPCord / Python - https://git.uwu.gal/pyhttpcord",

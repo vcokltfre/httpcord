@@ -25,7 +25,6 @@ SOFTWARE.
 from __future__ import annotations
 
 import enum
-import logging
 from http import HTTPStatus
 from typing import (
     TYPE_CHECKING,
@@ -218,27 +217,21 @@ class HTTPBot:
         return _decorator
 
     def register_command(self, command: Command) -> None:
-        """Register a non-decorator command with the bot, or a command group."""
-        if isinstance(command, Command):
-            self._commands[command.command_type][command._name] = command
-        else:
-            raise TypeError("Command must be a Command or CommandGroup")
+        """ Register a non-decorator command with the bot, or a command group. """
+        self._commands[command.command_type][command._name] = command
 
     async def _verify_signature(self, request: Request) -> bool:
         signature: str | None = request.headers.get("X-Signature-Ed25519")
         timestamp: str | None = request.headers.get("X-Signature-Timestamp")
         if signature is None or timestamp is None:
             return False
-        message = timestamp.encode() + await request.body()
-        try:
-            vk = VerifyKey(bytes.fromhex(self._public_key))
-            vk.verify(message, bytes.fromhex(signature))
-        except ValueError as e:
-            logging.error(f"Verification error: {e}")  # Use logging.error instead of print
-            return False
-        except Exception as e:
-            logging.error(f"Unexpected error in verification: {e}")  # Use logging.error for debugging
-            return False
+        else:
+            message = timestamp.encode() + await request.body()
+            try:
+                vk = VerifyKey(bytes.fromhex(self._public_key))
+                vk.verify(message, bytes.fromhex(signature))
+            except Exception:
+                return False
         return True
 
     async def _handle_verified_interaction(self, request: Request) -> JSONResponse:

@@ -125,24 +125,13 @@ class Locale:
         name_localisations: LocaleDict | None = None,
         description_localisations: LocaleDict | None = None,
     ) -> None:
-        import enum  # Import for validation
+        self.name_localisations: LocaleDict = name_localisations or {}
+        self.description_localisations: LocaleDict = description_localisations or {}
 
-        self.name_localisations: LocaleDict = {}
-        self.description_localisations: LocaleDict = {}
-        if name_localisations:
-            for key in name_localisations:
-                if not any(key == locale.value for locale in SupportedLocales):  # Validate against SupportedLocales
-                    raise ValueError(f"Invalid locale key: {key}")
-            self.name_localisations = name_localisations
-        if description_localisations:
-            for key in description_localisations:
-                if not any(key == locale.value for locale in SupportedLocales):  # Validate against SupportedLocales
-                    raise ValueError(f"Invalid locale key: {key}")
-            self.description_localisations = description_localisations
         if name:
-            self.name_localisations[DEFAULT_LOCALE] = name  # Assuming DEFAULT_LOCALE is valid
+            self.name_localisations[DEFAULT_LOCALE] = name
         if description:
-            self.description_localisations[DEFAULT_LOCALE] = description  # Assuming DEFAULT_LOCALE is valid
+            self.description_localisations[DEFAULT_LOCALE] = description
 
     def get_default(
         self,
