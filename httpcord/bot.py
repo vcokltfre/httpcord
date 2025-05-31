@@ -219,10 +219,7 @@ class HTTPBot:
 
     def register_command(self, command: Command) -> None:
         """ Register a non-decorator command with the bot, or a command group. """
-        if isinstance(command, Command):
-            self._commands[command.command_type][command._name] = command
-        else:
-            raise TypeError("Command must be a Command or CommandGroup")
+        self._commands[command.command_type][command._name] = command
 
     async def _verify_signature(self, request: Request) -> bool:
         signature: str | None = request.headers.get('X-Signature-Ed25519')

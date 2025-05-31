@@ -26,6 +26,8 @@ from __future__ import annotations
 
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Iterator,
     Literal,
     overload,
 )
@@ -273,7 +275,7 @@ class CommandOption:
         """The description of the command option."""
         return self._description or "--"
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self._name,
             "description": self.description,
@@ -293,7 +295,7 @@ class CommandOption:
             "description_localizations": self._locale.description_localisations,
         }
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[str, Any]]:
         yield from self.to_dict().items()
 
 
@@ -307,11 +309,11 @@ class Choice:
         self._name: str = name
         self._value: str = value
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self._name,
             "value": self._value,
         }
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[tuple[str, Any]]:
         yield from self.to_dict().items()
