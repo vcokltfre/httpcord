@@ -5,6 +5,9 @@ description = "A Python Discord Interaction bot API wrapper."
 authors = ["Isabelle Phoebe <izzy@uwu.gal>"]
 license = "MIT"
 readme = "README.md"
+include = [
+  "httpcord/py.typed",
+]
 
 [tool.poetry.dependencies]
 fastapi = "*"
