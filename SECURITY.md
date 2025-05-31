@@ -2,11 +2,11 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| code on main branch | :white_check_mark: |
+| Version                | Supported          |
+|------------------------|--------------------|
+| code on main branch    | :white_check_mark: |
 | latest release on pypi | :white_check_mark: |
-| everything else      | :x:                |
+| everything else        | :x:                |
 
 ## Reporting an active security vulnerability
 
