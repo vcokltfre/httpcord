@@ -3,8 +3,8 @@ from httpcord import (
     HTTPBot,
     Interaction,
 )
+from httpcord.channel import BaseChannel
 from httpcord.enums import InteractionResponseType
-from httpcord.types import File
 
 
 CLIENT_ID = 0000000000000000000000
@@ -18,11 +18,11 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
-@bot.command("upload-file")
-async def upload_file(interaction: Interaction, *, file: File) -> CommandResponse:
+@bot.command("get-channel")
+async def get_channel(interaction: Interaction, *, channel: BaseChannel) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        content=f"You uploaded a file with name: {file.filename}!",
+        content=f"Channel {channel.id} selected.",
     )
 
 bot.start(CLIENT_TOKEN)
