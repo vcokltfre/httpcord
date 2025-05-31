@@ -101,8 +101,11 @@ class Locale:
     ) -> None:
         self.name_localisations: LocaleDict = name_localisations or {}
         self.description_localisations: LocaleDict = description_localisations or {}
-        if name: self.name_localisations[DEFAULT_LOCALE] = name
-        if description: self.description_localisations[DEFAULT_LOCALE] = description
+
+        if name:
+            self.name_localisations[DEFAULT_LOCALE] = name
+        if description:
+            self.description_localisations[DEFAULT_LOCALE] = description
 
     def get_default(
         self,

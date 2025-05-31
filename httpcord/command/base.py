@@ -151,6 +151,8 @@ class Command:
         description_localisations: LocaleDict | None = None,
         option_localisations: dict[str, Locale] | None = None,
     ) -> None:
+        if not name.strip():
+            raise ValueError('Command name must be a non-empty string.')
         if (func is None and sub_commands is None) or (func is None and len(sub_commands or []) == 0):
             raise ValueError(f"Group command must have at least one sub command provided (`{name}`).")
 
@@ -303,7 +305,7 @@ class Command:
 
         return await self._func(interaction, **kwargs)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "type": self.command_type.value,
