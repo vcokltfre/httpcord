@@ -45,7 +45,7 @@ from httpcord.enums import (
 )
 from httpcord.func_protocol import AutocompleteFunc, CommandFunc
 from httpcord.interaction import CommandResponse, Interaction
-from httpcord.locale import DEFAULT_LOCALE, Locale, LocaleDict
+from httpcord.locale import Locale, LocaleDict
 from httpcord.types import (
     TYPE_CONVERSION_TABLE,
     Float,
@@ -152,8 +152,12 @@ class Command:
         description_localisations: LocaleDict | None = None,
         option_localisations: dict[str, Locale] | None = None,
     ) -> None:
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError('Command name must be a non-empty string.')
+        if sub_commands is not None and not all(isinstance(sub, Command) for sub in sub_commands):
+            raise ValueError('Sub-commands must be a list of Command objects.')
         if (func is None and sub_commands is None) or (func is None and len(sub_commands or []) == 0):
-            raise ValueError(f"Group command must at least one sub command provided (`{name}`).")
+            raise ValueError(f"Group command must have at least one sub command provided (`{name}`).")
 
         self._func: CommandFunc | None = func
         self._name: str = name
@@ -262,6 +266,7 @@ class Command:
                     name=option_name,
                     description=option_description,
                     type=TYPE_CONVERSION_TABLE[option_value],  # type: ignore[reportArgumentType]
+                    native_type=option_value,  # type: ignore[reportArgumentType]
                     required=required,
                     autocomplete=option_name in self._autocompletes.keys(),  # type: ignore[reportArgumentType]
                     options=None,
@@ -278,6 +283,7 @@ class Command:
                     name=name,
                     description=command.description,
                     type=ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+                    native_type=None,
                     required=None,
                     autocomplete=None,
                     options=command.options,
@@ -288,6 +294,7 @@ class Command:
                 name=name,
                 description=command.description,
                 type=ApplicationCommandOptionType.SUB_COMMAND,
+                native_type=None,
                 required=None,
                 autocomplete=False,
                 options=command.options,

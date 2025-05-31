@@ -22,17 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Final
-
-from .bot import HTTPBot
-from .command.base import CommandResponse, Interaction
-
-
-__all__: Final[tuple[str, ...]] = (
-    "CommandResponse",
-    "HTTPBot",
-    "Interaction",
+__all__: tuple[str, ...] = (
+    "from_timestamp",
+    "null_type_to_bool",
 )
 
-__version__: Final[str] = "0.3.0"
-__author__: Final[str] = "Isabelle Phoebe <izzy@uwu.gal>"
+
+from datetime import datetime, timezone
+
+
+def from_timestamp(timestamp: int | float | str) -> datetime:
+    if isinstance(timestamp, str):
+        return datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    return datetime.fromtimestamp(float(timestamp), tz=timezone.utc)
+
+
+def null_type_to_bool(input: dict, key: str) -> bool:
+    """
+    https://docs.discord.food/resources/guild#role-tags-structure
+
+    Tags with type null represent booleans. They will be present and set to null if they are true, and will be not present if they are false.
+
+    Yes, this is a real Discord API behavior.
+    It took me being higher than the Discord engineers to figure this one out.
+    """
+    return key in input.keys()

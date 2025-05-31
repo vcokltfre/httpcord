@@ -30,8 +30,12 @@ from typing import (
     overload,
 )
 
+from httpcord.attachment import Attachment
+from httpcord.channel import BaseChannel
 from httpcord.enums import ApplicationCommandOptionType
 from httpcord.locale import DEFAULT_LOCALE, Locale
+from httpcord.role import Role
+from httpcord.user import User
 
 
 __all__: tuple[str, ...] = (
@@ -45,6 +49,7 @@ class CommandOption:
         "_name",
         "_description",
         "_type",
+        "_native_type",
         "_required",
         "_autocomplete",
         "_options",
@@ -63,6 +68,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.SUB_COMMAND],
+            native_type: None,
             required: None = ...,
             autocomplete: Literal[False] | None = ...,
             options: dict[str, CommandOption] | None = ...,
@@ -80,6 +86,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.SUB_COMMAND_GROUP],
+            native_type: None,
             required: None = ...,
             autocomplete: None = ...,
             options: dict[str, CommandOption] = ...,
@@ -97,6 +104,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.STRING],
+            native_type: str,
             required: bool | None = ...,
             autocomplete: Literal[False] | None = ...,
             options: None = ...,
@@ -114,6 +122,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.STRING],
+            native_type: str,
             required: bool | None = ...,
             autocomplete: Literal[True] = ...,
             options: None = ...,
@@ -131,6 +140,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.INTEGER],
+            native_type: int,
             required: bool | None = ...,
             autocomplete: Literal[False] | None = ...,
             options: None = ...,
@@ -148,6 +158,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.INTEGER],
+            native_type: int,
             required: bool | None = ...,
             autocomplete: Literal[True] = ...,
             options: None = ...,
@@ -165,6 +176,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.NUMBER],
+            native_type: float,
             required: bool | None = ...,
             autocomplete: Literal[False] | None = ...,
             options: None = ...,
@@ -182,6 +194,7 @@ class CommandOption:
             name: str,
             description: str | None,
             type: Literal[ApplicationCommandOptionType.NUMBER],
+            native_type: float,
             required: bool | None = ...,
             autocomplete: Literal[True] = ...,
             options: None = ...,
@@ -206,6 +219,7 @@ class CommandOption:
                 ApplicationCommandOptionType.MENTIONABLE,
                 ApplicationCommandOptionType.ATTACHMENT,
             ],
+            native_type: bool | User | BaseChannel | Role | Attachment,
             required: bool | None = ...,
             autocomplete: None = ...,
             options: None = ...,
@@ -222,6 +236,7 @@ class CommandOption:
         name: str,
         description: str | None,
         type: ApplicationCommandOptionType,
+        native_type: str | int | float | bool | User | BaseChannel | Role | Attachment | None = None,
         required: bool | None = False,
         autocomplete: bool | None = False,
         options: dict[str, CommandOption] | None = None,
@@ -233,8 +248,9 @@ class CommandOption:
         locale: Locale | None = None,
     ) -> None:
         self._name: str = name
-        self._description: str = description or ""
+        self._description: str | None = description
         self._type: ApplicationCommandOptionType = type
+        self._native_type: str | int | float | bool | User | BaseChannel | Role | Attachment | None = native_type
         self._required: bool = required or False
         self._autocomplete: bool | None = autocomplete
         self._options: dict[str, CommandOption] | None = options
@@ -245,13 +261,22 @@ class CommandOption:
         self._max_length: int | None = max_length
         self._locale = locale or Locale(
             name_localisations={DEFAULT_LOCALE: name},
-            description_localisations={DEFAULT_LOCALE: self._description},
+            description_localisations=(
+                {DEFAULT_LOCALE: self._description}
+                if self._description is not None
+                else None
+            ),
         )
+
+    @property
+    def description(self) -> str:
+        """The description of the command option."""
+        return self._description or "--"
 
     def to_dict(self) -> dict:
         return {
             "name": self._name,
-            "description": self._description,
+            "description": self.description,
             "type": self._type.value,
             "required": self._required if self._type not in [
                 ApplicationCommandOptionType.SUB_COMMAND,
