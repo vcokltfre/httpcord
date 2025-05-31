@@ -19,6 +19,7 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("guess-number")
 async def guess_number(interaction: Interaction, *, guess: int, max_value: int = 10) -> CommandResponse:
     winning_number = random.randint(0, max_value)
@@ -31,5 +32,6 @@ async def guess_number(interaction: Interaction, *, guess: int, max_value: int =
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content="Aww, you got the number wrong. Better luck next time :)",
     )
+
 
 bot.start(CLIENT_TOKEN)

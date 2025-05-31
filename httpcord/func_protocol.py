@@ -43,30 +43,30 @@ __all__: Final[tuple[str, ...]] = (
 )
 
 
-P = ParamSpec('P')
-R = TypeVar('R', covariant=True)
+P = ParamSpec("P")
+R = TypeVar("R", covariant=True)
 
 
 class CommandCallabackProtocol(Protocol[P, R]):
-    '''Protocol for command callback functions, defining the signature for functions that handle interactions and return a CommandResponse.'''
+    """Protocol for command callback functions, defining the signature for functions that handle interactions and return a CommandResponse."""
+
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, interaction: Interaction[Any], *args: P.args, **kwargs: P.kwargs) -> R:
-        ...
+    async def __call__(self, interaction: Interaction[Any], *args: P.args, **kwargs: P.kwargs) -> R: ...
 
 
 class AutocompleteCallabackProtocol(Protocol[P, R]):
-    '''Protocol for autocomplete callback functions, defining the signature for functions that handle autocomplete queries and return choices.'''
+    """Protocol for autocomplete callback functions, defining the signature for functions that handle autocomplete queries and return choices."""
+
     __kwdefaults__: dict[str, str]
     __slots__: Final[tuple[str, ...]] = ()
 
-    async def __call__(self, interaction: Interaction[Any], current: str) -> R:
-        ...
+    async def __call__(self, interaction: Interaction[Any], current: str) -> R: ...
 
 
-'''Type alias for command functions, representing asynchronous functions that take an interaction and return a CommandResponse.'''
+"""Type alias for command functions, representing asynchronous functions that take an interaction and return a CommandResponse."""
 CommandFunc = CommandCallabackProtocol[Any, CommandResponse]
 
-'''Type alias for autocomplete functions, representing asynchronous functions that take an interaction and a string, returning a list of choices.'''
+"""Type alias for autocomplete functions, representing asynchronous functions that take an interaction and a string, returning a list of choices."""
 AutocompleteFunc = Callable[[Interaction[Any], str], Coroutine[Any, Any, List[Choice]]]

@@ -25,9 +25,7 @@ SOFTWARE.
 from httpcord.channel import BaseChannel
 
 
-__all__: tuple[str, ...] = (
-    "PartialMessage",
-)
+__all__: tuple[str, ...] = ("PartialMessage",)
 
 
 class PartialMessage:

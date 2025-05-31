@@ -65,9 +65,7 @@ from httpcord.types import JSONResponseError, JSONResponseType
 from httpcord.user import User
 
 
-__all__: Final[tuple[str, ...]] = (
-    "HTTPBot",
-)
+__all__: Final[tuple[str, ...]] = ("HTTPBot",)
 
 
 DEFAULT_FASTAPI_KWARGS: Final[dict[str, Any]] = {
@@ -113,7 +111,7 @@ class HTTPBot:
         on_shutdown: Callable[[], Coroutine[Any, Any, None]] | None = None,
         **kwargs: Any,
     ) -> None:
-        """ Create an HTTPBot client. """
+        """Create an HTTPBot client."""
         self.http: HTTP
         self._token: str
         self._id: Final[int] = client_id
@@ -142,6 +140,7 @@ class HTTPBot:
         )
 
     if TYPE_CHECKING:
+
         @overload
         def command(
             self,
@@ -192,7 +191,7 @@ class HTTPBot:
         description_localisations: LocaleDict | None = None,
         option_localisations: dict[str, Locale] | None = None,
     ):
-        """ Register a command with the bot. """
+        """Register a command with the bot."""
 
         if command_type not in self._commands:
             raise ValueError(f"Invalid command type {command_type}")
@@ -214,6 +213,7 @@ class HTTPBot:
                 description_localisations=description_localisations,
                 option_localisations=option_localisations,
             )
+
         return _decorator
 
     def register_command(self, command: Command) -> None:
@@ -221,8 +221,8 @@ class HTTPBot:
         self._commands[command.command_type][command._name] = command
 
     async def _verify_signature(self, request: Request) -> bool:
-        signature: str | None = request.headers.get('X-Signature-Ed25519')
-        timestamp: str | None = request.headers.get('X-Signature-Timestamp')
+        signature: str | None = request.headers.get("X-Signature-Ed25519")
+        timestamp: str | None = request.headers.get("X-Signature-Timestamp")
         if signature is None or timestamp is None:
             return False
         else:
@@ -236,14 +236,14 @@ class HTTPBot:
 
     async def _handle_verified_interaction(self, request: Request) -> JSONResponse:
         request_json = await request.json()
-        if request_json['type'] == InteractionType.PING:
+        if request_json["type"] == InteractionType.PING:
             return JSONResponse(
                 status_code=HTTPStatus.OK,
                 content=JSONResponseType(
                     type=InteractionResponseType.PONG,
                 ),
             )
-        elif request_json['type'] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
+        elif request_json["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
             return await self.__process_autocompletes(request, request_json)
         return await self.__process_commands(request, request_json)
 
@@ -262,11 +262,7 @@ class HTTPBot:
             return None
 
         interaction = await self.___create_interaction(request, command, data)
-        return CommandData(
-            command=command,
-            options=data["data"].get("options", []),
-            interaction=interaction
-        )
+        return CommandData(command=command, options=data["data"].get("options", []), interaction=interaction)
 
     async def __process_commands(self, request: Request, data: dict[str, Any]) -> Any:
         command_data = await self.___get_command_data(request, data)
@@ -288,7 +284,7 @@ class HTTPBot:
         command_options = command.options or {}
         for option_name, option_value in options.items():
             if command_options[option_name]._type == ApplicationCommandOptionType.ATTACHMENT:
-                options[option_name] = Attachment.from_option(data['data']['resolved']['attachments'][option_value])
+                options[option_name] = Attachment.from_option(data["data"]["resolved"]["attachments"][option_value])
             elif command_options[option_name]._type == ApplicationCommandOptionType.CHANNEL:
                 options[option_name] = interaction.resolved.channels[int(option_value)]
             elif command_options[option_name]._type == ApplicationCommandOptionType.ROLE:
@@ -351,14 +347,14 @@ class HTTPBot:
 
     async def register_commands(self) -> None:
         api_commands: list[dict[str, Any]] = [
-            command.to_dict()
-            for commands in self._commands.values()
-            for command in commands.values()
+            command.to_dict() for commands in self._commands.values() for command in commands.values()
         ]
-        await self.http.put(Route(
-            f"/applications/{self._id}/commands",
-            json=api_commands,
-        ))
+        await self.http.put(
+            Route(
+                f"/applications/{self._id}/commands",
+                json=api_commands,
+            )
+        )
 
     async def _setup(self) -> None:
         self.http = HTTP(token=self._token)

@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 from enum import StrEnum
 from typing import Literal
 
@@ -35,11 +34,38 @@ __all__: tuple[str, ...] = (
 )
 
 SupportedLocalesLiterals = Literal[
-    "id", "da", "de", "en-GB", "en-US", "es-ES",
-    "es-419", "fr", "hr", "it", "lt", "hu", "nl",
-    "no", "pl", "pt_BR", "ro", "fi", "sv_SE", "vi",
-    "tr", "cs", "el", "bg", "ru", "uk", "hi", "th",
-    "zh_CN", "ja", "zh_TW", "ko",
+    "id",
+    "da",
+    "de",
+    "en-GB",
+    "en-US",
+    "es-ES",
+    "es-419",
+    "fr",
+    "hr",
+    "it",
+    "lt",
+    "hu",
+    "nl",
+    "no",
+    "pl",
+    "pt_BR",
+    "ro",
+    "fi",
+    "sv_SE",
+    "vi",
+    "tr",
+    "cs",
+    "el",
+    "bg",
+    "ru",
+    "uk",
+    "hi",
+    "th",
+    "zh_CN",
+    "ja",
+    "zh_TW",
+    "ko",
 ]
 
 

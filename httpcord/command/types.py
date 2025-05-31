@@ -64,6 +64,7 @@ class CommandOption:
     )
 
     if TYPE_CHECKING:
+
         @overload
         def __init__(
             self,
@@ -263,11 +264,7 @@ class CommandOption:
         self._max_length: int | None = max_length
         self._locale = locale or Locale(
             name_localisations={DEFAULT_LOCALE: name},
-            description_localisations=(
-                {DEFAULT_LOCALE: self._description}
-                if self._description is not None
-                else None
-            ),
+            description_localisations=({DEFAULT_LOCALE: self._description} if self._description is not None else None),
         )
 
     @property
@@ -280,10 +277,15 @@ class CommandOption:
             "name": self._name,
             "description": self.description,
             "type": self._type.value,
-            "required": self._required if self._type not in [
-                ApplicationCommandOptionType.SUB_COMMAND,
-                ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-            ] else None,
+            "required": (
+                self._required
+                if self._type
+                not in [
+                    ApplicationCommandOptionType.SUB_COMMAND,
+                    ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+                ]
+                else None
+            ),
             "autocomplete": self._autocomplete,
             "options": [option.to_dict() for option in self._options.values()] if self._options else None,
             "choices": [choice.to_dict() for choice in self._choices] if self._choices else None,

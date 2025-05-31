@@ -30,11 +30,10 @@ ANIMALS: Final[list[str]] = [
     "axolotl",
 ]
 
+
 async def string_autocomplete(interaction: Interaction, current: str) -> list[Choice]:
-    return [
-        Choice(name=animal, value=animal)
-        for animal in ANIMALS if current.lower() in animal
-    ]
+    return [Choice(name=animal, value=animal) for animal in ANIMALS if current.lower() in animal]
+
 
 @bot.command(
     name="autocomplete",
@@ -48,5 +47,6 @@ async def autocomplete_command(interaction: Interaction, *, string: str) -> Comm
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         embeds=[Embed(title=string)],
     )
+
 
 bot.start(CLIENT_TOKEN)

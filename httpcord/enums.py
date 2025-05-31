@@ -38,7 +38,8 @@ __all__: Final[tuple[str, ...]] = (
 
 
 class ApplicationCommandType(IntEnum):
-    '''Enum for different types of application commands in Discord interactions.'''
+    """Enum for different types of application commands in Discord interactions."""
+
     CHAT_INPUT = 1
     USER = 2
     MESSAGE = 3
@@ -46,7 +47,8 @@ class ApplicationCommandType(IntEnum):
 
 
 class InteractionType(IntEnum):
-    '''Enum for types of interactions received from Discord.'''
+    """Enum for types of interactions received from Discord."""
+
     PING = 1
     APPLICATION_COMMAND = 2
     MESSAGE_COMPONENT = 3
@@ -55,14 +57,16 @@ class InteractionType(IntEnum):
 
 
 class InteractionContextType(IntEnum):
-    '''Enum for contexts in which interactions can occur.'''
+    """Enum for contexts in which interactions can occur."""
+
     GUILD = 0
     BOT_DM = 1
     PRIVATE_CHANNEL = 2
 
 
 class InteractionResponseType(IntEnum):
-    '''Enum for types of responses to interactions.'''
+    """Enum for types of responses to interactions."""
+
     PONG = 1
     CHANNEL_MESSAGE_WITH_SOURCE = 4
     DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5
@@ -73,26 +77,29 @@ class InteractionResponseType(IntEnum):
 
 
 class InteractionResponseFlags(IntEnum):
-    '''Enum for flags used in interaction responses, such as making them ephemeral.'''
+    """Enum for flags used in interaction responses, such as making them ephemeral."""
+
     EPHEMERAL = 1 << 6
 
 
 class ApplicationCommandOptionType(IntEnum):
-    '''Enum for types of options in application commands.'''
+    """Enum for types of options in application commands."""
+
     SUB_COMMAND = 1
     SUB_COMMAND_GROUP = 2
     STRING = 3
-    INTEGER = 4     # Any integer between -2^53 and 2^53
+    INTEGER = 4  # Any integer between -2^53 and 2^53
     BOOLEAN = 5
     USER = 6
-    CHANNEL = 7     # Includes all channel types + categories
+    CHANNEL = 7  # Includes all channel types + categories
     ROLE = 8
-    MENTIONABLE = 9 # Includes users and roles
-    NUMBER = 10	    # Any double between -2^53 and 2^53
-    ATTACHMENT = 11 # attachment object
+    MENTIONABLE = 9  # Includes users and roles
+    NUMBER = 10  # Any double between -2^53 and 2^53
+    ATTACHMENT = 11  # attachment object
 
 
 class ApplicationIntegrationType(IntEnum):
-    '''Enum for types of application integrations.'''
+    """Enum for types of application integrations."""
+
     GUILD_INSTALL = 0
     USER_INSTALL = 1

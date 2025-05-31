@@ -17,11 +17,13 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("hello-world")
 async def hello_world(interaction: Interaction) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"hello, {interaction.user.mention}!",
     )
+
 
 bot.start(CLIENT_TOKEN)

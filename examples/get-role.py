@@ -18,11 +18,13 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("get-role")
 async def get_role(interaction: Interaction, *, role: Role) -> CommandResponse:
     return CommandResponse(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Role {role.id} selected.",
     )
+
 
 bot.start(CLIENT_TOKEN)

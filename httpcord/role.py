@@ -26,9 +26,7 @@ from httpcord.asset import Asset
 from httpcord.utils.functions import null_type_to_bool
 
 
-__all__: tuple[str, ...] = (
-    "Role",
-)
+__all__: tuple[str, ...] = ("Role",)
 
 
 class RoleColours:
@@ -212,8 +210,4 @@ class Role:
     @property
     def tags(self) -> RoleTags:
         """The tags of the role, if any."""
-        return (
-            RoleTags(self._tags) if self._tags
-            is not None
-            else RoleTags({})
-        )
+        return RoleTags(self._tags) if self._tags is not None else RoleTags({})

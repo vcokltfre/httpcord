@@ -14,9 +14,7 @@ NUMBER_OF_DEFAULT_AVATARS: Final[int] = 6
 
 
 class AvatarDecoration:
-    __slots__: tuple[str, ...] =(
-        "_data",
-    )
+    __slots__: tuple[str, ...] = ("_data",)
 
     def __init__(self, data: dict) -> None:
         self._data: dict = data

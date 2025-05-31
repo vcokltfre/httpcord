@@ -17,6 +17,7 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("ephemeral")
 async def ephemeral(interaction: Interaction) -> CommandResponse:
     return CommandResponse(
@@ -24,5 +25,6 @@ async def ephemeral(interaction: Interaction) -> CommandResponse:
         content="Hello!",
         ephemeral=True,
     )
+
 
 bot.start(CLIENT_TOKEN)

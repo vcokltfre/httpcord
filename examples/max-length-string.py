@@ -20,6 +20,7 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("string-length-test")
 async def string_length_test(
     interaction: Interaction,
@@ -30,5 +31,6 @@ async def string_length_test(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Wow! {echo}",
     )
+
 
 bot.start(CLIENT_TOKEN)

@@ -36,7 +36,8 @@ async def attachment_response(interaction: Interaction, *, attachment: Attachmen
                 fp=attachment_bytes,
                 filename=attachment.filename,
             )
-        ]
+        ],
     )
+
 
 bot.start(CLIENT_TOKEN)

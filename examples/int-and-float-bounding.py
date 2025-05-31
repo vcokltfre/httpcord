@@ -20,6 +20,7 @@ bot = HTTPBot(
     register_commands_on_startup=True,
 )
 
+
 @bot.command("int-and-float-bounding")
 async def int_and_float_bounding(
     interaction: Interaction,
@@ -31,5 +32,6 @@ async def int_and_float_bounding(
         type=InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         content=f"Wow! {integer} and {number}",
     )
+
 
 bot.start(CLIENT_TOKEN)
