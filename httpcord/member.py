@@ -1,7 +1,7 @@
 import datetime
 
 from httpcord.asset import Asset
-from httpcord.avatar import AvatarDecoration, NUMBER_OF_DEFAULT_AVATARS
+from httpcord.avatar import AvatarDecoration
 from httpcord.user import User
 from httpcord.utils.functions import from_timestamp
 
@@ -11,7 +11,6 @@ __all__: tuple[str, ...] = (
     "PartialMemberWithUser",
     "Member",
 )
-
 
 
 class PartialMember:
