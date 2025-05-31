@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "httpcord"
-version = "0.2.2"
+version = "0.3.0"
 description = "A Python Discord Interaction bot API wrapper."
 authors = ["Isabelle Phoebe <izzy@uwu.gal>"]
 license = "MIT"
@@ -11,7 +11,7 @@ fastapi = "*"
 PyNaCl = "*"
 uvicorn = "*"
 aiohttp = "*"
-python-dateutil = "*"
+python-dateutil = "2.9.0.post0"
 python = "^3.10"
 
 [tool.poetry.urls]
